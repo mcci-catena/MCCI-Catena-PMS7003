@@ -73,13 +73,29 @@ cPMS7003::State cPMS7003::fsmDispatch(
     {
     State newState = State::stNoChange;
 
+    if (fEntry && this->m_hal->isEnabled(DebugFlags::kTrace))
+        {
+        this->m_hal->printf("cPMS7003::fsmDispatch: enter %s\n",
+                this->getStateName(currentState)
+                );
+        }
+
     // first we try to handle the outer states.
     switch (currentState)
         {
     case State::stInitial:
-        // set up the HAL
-        this->m_hal->begin();
-        newState = State::stOff;
+        newState = State::stInitialSetup;
+        break;
+
+    case State::stInitialSetup:
+        if (fEntry)
+            {
+            // set up the HAL
+            this->m_hal->begin();
+            this->setTimer(this->m_hal->set5v(false));
+            }
+        if (this->checkEvent(Event::Timer))
+            newState = State::stOff;
         break;
 
     case State::stOff:
@@ -97,8 +113,7 @@ cPMS7003::State cPMS7003::fsmDispatch(
     case State::stRequestPowerOn:
         if (fEntry)
             {
-            this->m_hal->set5v(true);
-            this->setTimer(100);
+            this->setTimer(this->m_hal->set5v(true));
             }
         if (this->checkEvent(Event::Timer))
             {
@@ -114,12 +129,16 @@ cPMS7003::State cPMS7003::fsmDispatch(
         if (fEntry)
             {
             this->m_hal->setReset(cPMS7003Hal::PinState::Zero);
-            this->setTimer(2);
+            this->setTimer(getTresetMin());
+
             // bring up the serial port.
             }
 
         if (this->checkEvent(Event::Timer))
+            {
+            this->m_hal->setReset(cPMS7003Hal::PinState::One);
             newState = State::stNormal;
+            }
         break;
 
     case State::stRequestPowerDown:
@@ -129,8 +148,7 @@ cPMS7003::State cPMS7003::fsmDispatch(
             this->m_hal->setMode(cPMS7003Hal::PinState::HighZ);
             this->m_port->end();
             this->m_flags.b.RxTxEnabled = false;
-            this->m_hal->set5v(false);
-            this->setTimer(100);
+            this->setTimer(this->m_hal->set5v(false));
             }
 
         if (this->checkEvent(Event::Timer))
@@ -148,21 +166,32 @@ cPMS7003::State cPMS7003::fsmDispatch(
             newState = State::stRequestPowerDown;
         else if (this->checkRequest(Request::Reset))
             newState = State::stReset;
-        else 
+        else
             {
             switch (currentState)
                 {
             case State::stNormal:
+                {
                 if (fEntry)
                     {
-                    this->m_hal->setMode(cPMS7003Hal::PinState::HighZ);
+                    this->m_hal->setMode(cPMS7003Hal::PinState::One);
                     }
+                auto const oldRequests = this->m_requests;
+
                 this->allowRequests(
-                        rqMask(Request::HwSleep) | 
+                        rqMask(Request::HwSleep) |
                         rqMask(Request::Sleep) |
                         rqMask(Request::Passive)
                         );
-    
+
+                if (oldRequests != 0 && this->m_hal->isEnabled(DebugFlags::kTrace))
+                    {
+                    this->m_hal->printf(
+                            "%s: unknown state %u\n",
+                            __func__, unsigned(currentState)
+                            );
+                    }
+
                 if (this->checkRequest(Request::HwSleep))
                     {
                     newState = State::stNormalHwSleep;
@@ -175,6 +204,7 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     {
                     newState = State::stPassiveSendCmd;
                     }
+                }
                 break;
 
             case State::stPassiveSendCmd:
@@ -191,14 +221,14 @@ cPMS7003::State cPMS7003::fsmDispatch(
             case State::stPassive:
                 if (fEntry)
                     {
-                    this->m_hal->setMode(cPMS7003Hal::PinState::HighZ);
+                    this->m_hal->setMode(cPMS7003Hal::PinState::One);
                     }
                 this->allowRequests(
-                        rqMask(Request::HwSleep) | 
+                        rqMask(Request::HwSleep) |
                         rqMask(Request::Sleep) |
-                        rqMask(Request::Passive)
+                        rqMask(Request::Normal)
                         );
-    
+
                 if (this->checkRequest(Request::HwSleep))
                     {
                     newState = State::stPassiveHwSleep;
@@ -273,7 +303,7 @@ cPMS7003::State cPMS7003::fsmDispatch(
                 if (fEntry)
                     {
                     const WireCommandMeasure cmd;
-                    
+
                     this->sendCommand(cmd);
                     this->resetEvent(Event::NewData);
                     this->setTimer(1000);
@@ -424,7 +454,7 @@ void cPMS7003::poll(void)
             {
             this->m_flags.b.TimerActive = false;
             this->setEvent(Event::Timer);
-            } 
+            }
         }
     }
 

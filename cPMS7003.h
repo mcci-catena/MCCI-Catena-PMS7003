@@ -39,9 +39,9 @@ public:
             One = 1,
             HighZ = -1
             };
-    static constexpr bool isLowZ(PinState v) 
-        { 
-        return v == PinState::Zero || v == PinState::One; 
+    static constexpr bool isLowZ(PinState v)
+        {
+        return v == PinState::Zero || v == PinState::One;
         }
 
     // start operation
@@ -99,6 +99,8 @@ class cPMS7003 : public McciCatena::cPollableObject
     //*******************************************
 private:
     typedef decltype(Serial1) cSerial;
+    // get minimum reset time in millis.
+    static constexpr std::uint32_t getTresetMin() { return 10; }
 
     //*******************************************
     // Constructor, etc.
@@ -106,10 +108,10 @@ private:
 public:
     cPMS7003(cSerial &port, cPMS7003Hal &hal)
         : m_port    (&port)
-        , m_hal     (&hal) 
+        , m_hal     (&hal)
         {};
 
-    // neither copyable nor movable 
+    // neither copyable nor movable
     cPMS7003(const cPMS7003&) = delete;
     cPMS7003& operator=(const cPMS7003&) = delete;
     cPMS7003(const cPMS7003&&) = delete;
@@ -123,11 +125,11 @@ public:
         {
         stNoChange = 0, // this name must be present: indicates "no change of state"
         stInitial,      // this name must be present: it's the starting state.
-        stOff, 
+        stInitialSetup,
+        stOff,
         stRequestPowerOn,
         stReset,        // reset is asserted.
         stRequestPowerDown,
-
         stNormal,       // nornmal, idling
         stPassiveSendCmd,
         stPassive,
@@ -141,13 +143,42 @@ public:
         stPassiveSleepCmd,
         stPassiveSwSleep,
         stPassiveWakeCmd,
-
         stFinal,        // this name must be present, it's the terminal state.
         };
+
+    static constexpr char *getStateName(State s)
+        {
+        switch (s)
+            {
+        case State::stNoChange: return "stNoChange";
+        case State::stInitial: return "stInitial";
+        case State::stInitialSetup: return "stInitialSetup";
+        case State::stOff: return "stOff";
+        case State::stRequestPowerOn: return "stRequestPowerOn";
+        case State::stReset: return "stReset";
+        case State::stRequestPowerDown: return "stRequestPowerDown";
+        case State::stNormal: return "stNormal";
+        case State::stPassiveSendCmd: return "stPassiveSendCmd";
+        case State::stPassive: return "stPassive";
+        case State::stNormalSendCmd: return "stNormalSendCmd";
+        case State::stNormalHwSleep: return "stNormalHwSleep";
+        case State::stNormalSleepCmd: return "stNormalSleepCmd";
+        case State::stNormalSwSleep: return "stNormalSwSleep";
+        case State::stNormalWakeCmd: return "stNormalWakeCmd";
+        case State::stPassiveHwSleep: return "stPassiveHwSleep";
+        case State::stPassiveMeasureCmd: return "stPassiveMeasureCmd";
+        case State::stPassiveSleepCmd: return "stPassiveSleepCmd";
+        case State::stPassiveSwSleep: return "stPassiveSwSleep";
+        case State::stPassiveWakeCmd: return "stPassiveWakeCmd";
+        case State::stFinal: return "stFinal";
+        default: return "<<unknown>>";
+            }
+        }
 
     //*******************************************
     // Debug flags
     //*******************************************
+public:
     enum DebugFlags : std::uint32_t
         {
         kError      = 1 << 0,
@@ -276,8 +307,8 @@ private:
             this->usData[0] = std::uint8_t(a_usData >> 8);
             this->usData[1] = std::uint8_t(a_usData & 0xFF);
             cPMS7003::writeChecksum(
-                this->usChecksum, 
-                (const std::uint8_t *)this, 
+                this->usChecksum,
+                (const std::uint8_t *)this,
                 sizeof(*this) - 2
                 );
             }
@@ -323,6 +354,7 @@ private:
     //*******************************************
     // Statistics
     //*******************************************
+public:
     struct RxStats
         {
         std::uint32_t   CharIn;
@@ -336,13 +368,11 @@ private:
     // The public methods
     //*******************************************
 public:
-    // start the sensor. You must turn on power to the sensor
-    // before calling cPMS7003::begin(). This starts the
-    // serial port.
+    // start the sensor. This turns on power to the sensor
+    // and starts the power-up seqeunce.
     bool begin();
 
-    // stop the sensor. After this returns, you may turn off
-    // power to the sensor. This API will stop the serial port.
+    // stop the sensor. 
     void end();
 
     typedef void MeasurementCb_t(void *pUserData, const Measurements<std::uint16_t> *pData);
@@ -357,6 +387,17 @@ public:
     virtual void poll(void) override;
     void suspend();
     void resume();
+
+    void requestOff() { setRequest(Request::Off); }
+    void requestReset() { setRequest(Request::Reset); }
+    void requestHwSleep() { setRequest(Request::HwSleep); }
+    void requestSleep() { setRequest(Request::Sleep); }
+    void requestPassive() { setRequest(Request::Passive); }
+    void requestNormal() { setRequest(Request::Normal); }
+    void requestMeasure() { setRequest(Request::Measure); }
+
+    void eventWake() { setEvent(Event::Wake); }
+    RxStats getRxStats() { return this->m_RxStats; }
 
     //*******************************************
     // Event handling
@@ -374,6 +415,36 @@ private:
 
     static_assert(int(Event::Max) < 32);
 
+    void resetEvent(Event e)
+        {
+        this->m_events &= ~evMask(e);
+        }
+    bool checkEvent(Event e)
+        {
+        const std::uint32_t m = evMask(e);
+
+        if (this->m_events & m)
+            {
+            this->m_events &= ~m;
+            return true;
+            }
+        else
+            return false;
+        }
+
+    bool setEvent(Event e)
+        {
+        const std::uint32_t m = evMask(e);
+        this->m_events |= m;
+        this->m_fsm.eval();
+        }
+
+    static std::uint32_t evMask(Event e) { return 1 << std::uint32_t(e); }
+
+    //*******************************************
+    // Request handling
+    //*******************************************
+private:
     enum class Request : std::uint32_t
         {
         Off,
@@ -388,21 +459,6 @@ private:
 
     static_assert(int(Request::Max) < 32);
 
-    void resetEvent(Event e)
-        {
-        this->m_events &= ~evMask(e);
-        }
-    bool checkEvent(Event e)
-        {
-        const std::uint32_t m = evMask(e);
-
-        if (this->m_events & m)
-            {
-            this->m_events &= ~m;
-            return true;
-            }
-        }
-
     bool checkRequest(Request r)
         {
         const std::uint32_t m = rqMask(r);
@@ -414,13 +470,8 @@ private:
             this->m_requests = 0;
             return true;
             }
-        }
-
-    bool setEvent(Event e)
-        {
-        const std::uint32_t m = evMask(e);
-        this->m_events |= m;
-        this->m_fsm.eval();
+        else
+            return false;
         }
 
     bool setRequest(Request r)
@@ -441,7 +492,6 @@ private:
         }
 
     static std::uint32_t rqMask(Request r) { return 1 << std::uint32_t(r); }
-    static std::uint32_t evMask(Event e) { return 1 << std::uint32_t(e); }
 
     //*******************************************
     // The timer

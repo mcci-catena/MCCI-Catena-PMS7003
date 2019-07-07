@@ -66,6 +66,8 @@ public:
 
     virtual bool begin() override
         {
+        if (this->isEnabled(cPMS7003::DebugFlags::kTrace))
+            this->printf("hal begin\n");
         pinWrite(kVddPin, 0);
         setPinMode(kVddPin, OUTPUT);
 
@@ -76,6 +78,8 @@ public:
 
     virtual void end() override
         {
+        if (this->isEnabled(cPMS7003::DebugFlags::kTrace))
+            this->printf("hal end\n");
         pinWrite(kVddPin, 0);
         setPinMode(kVddPin, INPUT);
         this->setReset(PinState::HighZ);
@@ -86,6 +90,9 @@ public:
         {
         if (this->m_f5vState == fEnable)
             return 0;
+
+        if (this->isEnabled(cPMS7003::DebugFlags::kTrace))
+            this->printf("set5v: %u\n", unsigned(fEnable));
 
         this->m_f5vState = fEnable;
         pinWrite(kVddPin, fEnable);
@@ -110,19 +117,32 @@ public:
     virtual void suspend() override
         {
         this->set5v(false);
-        } 
+        }
 
     virtual std::uint32_t resume() override
         {
         return this->set5v(true);
         }
 
+    static constexpr char pinStateName(PinState v)
+        {
+        switch (v)
+            {
+        case PinState::Zero:    return '0';
+        case PinState::One:     return '1';
+        case PinState::HighZ:   return 'Z';
+        default:                return '?';
+            }
+        }
     virtual void setReset(PinState v) override
         {
         PinState const old = this->m_reset;
 
         if (old == v)
             return;
+
+        if (this->isEnabled(cPMS7003::DebugFlags::kTrace))
+            this->printf("setReset: %c\n", pinStateName(v));
 
         this->m_reset = v;
         updatePin(v, old);
@@ -139,6 +159,9 @@ public:
 
         if (old == v)
             return;
+
+        if (this->isEnabled(cPMS7003::DebugFlags::kTrace))
+            this->printf("setMode: %c\n", pinStateName(v));
 
         this->m_mode = v;
         updatePin(v, old);
@@ -207,7 +230,7 @@ public:
     // constructor
     cTimer() {}
 
-    // neither copyable nor movable 
+    // neither copyable nor movable
     cTimer(const cTimer&) = delete;
     cTimer& operator=(const cTimer&) = delete;
     cTimer(const cTimer&&) = delete;
@@ -231,7 +254,7 @@ public:
         Serial.print("time="); Serial.print(this->m_time);
         Serial.print(" interval="); Serial.print(this->m_interval);
         Serial.print(" events="); Serial.print(this->m_events);
-        Serial.print(" overrun="); Serial.println(this->m_overrun); 
+        Serial.print(" overrun="); Serial.println(this->m_overrun);
         }
 
 private:
@@ -268,7 +291,7 @@ void cTimer::poll() /* override */
 
         // rarely, we need to do arithmetic. time and events are in sync.
         // arrange for m_time to be greater than tNow, and adjust m_events
-        // accordingly. 
+        // accordingly.
         std::uint32_t const tDiff = tNow - this->m_time;
         std::uint32_t const nTicks = tDiff / this->m_interval;
         this->m_events += nTicks;
@@ -286,7 +309,7 @@ std::uint32_t cTimer::readTicks()
     {
     auto const result = this->m_events;
     this->m_events = 0;
-    return result; 
+    return result;
     }
 
 std::uint32_t cTimer::peekTicks() const
@@ -318,7 +341,7 @@ SPIClass gSPI2(
 Catena_Mx25v8035f gFlash;
 bool gfFlash;
 
-cPMS7003Hal_4630 gPmsHal { cPMS7003::DebugFlags::kError };
+cPMS7003Hal_4630 gPmsHal { cPMS7003::DebugFlags::kError | cPMS7003::DebugFlags::kTrace };
 cPMS7003 gPms7003 { Serial2, gPmsHal };
 
 // forward reference to the command functions
@@ -331,6 +354,8 @@ cCommandStream::CommandFn cmdSleep;
 cCommandStream::CommandFn cmdPassive;
 cCommandStream::CommandFn cmdNormal;
 cCommandStream::CommandFn cmdMeasure;
+cCommandStream::CommandFn cmdWake;
+cCommandStream::CommandFn cmdStats;
 
 // the measurement callback.
 cPMS7003::MeasurementCb_t measurementAvailable;
@@ -347,6 +372,8 @@ static const cCommandStream::cEntry sMyExtraCommmands[] =
         { "passive", cmdPassive },
         { "normal", cmdNormal },
         { "measure", cmdMeasure },
+        { "wake", cmdWake },
+        { "stats", cmdStats },
         // other commands go here....
         };
 
@@ -377,6 +404,7 @@ void setup()
     setup_flash();
     setup_radio();
     setup_pms7003();
+    setup_commands();
     }
 
 void setup_flash(void)
@@ -437,6 +465,21 @@ void setup_pms7003()
     gPms7003.setCallback(measurementAvailable, nullptr);
     }
 
+void setup_commands()
+    {
+    /* add our application-specific commands */
+    gCatena.addCommands(
+        /* name of app dispatch table, passed by reference */
+        sMyExtraCommands_top,
+        /*
+        || optionally a context pointer using static_cast<void *>().
+        || normally only libraries (needing to be reentrant) need
+        || to use the context pointer.
+        */
+        nullptr
+        );
+    }
+
 /****************************************************************************\
 |
 |   Loop
@@ -460,12 +503,228 @@ void measurementAvailable(
     )
     {
     gCatena.SafePrintf(
-        "CF1 pm 1.0=%-5u 2.5=%-5u 10=%-5u "
-        "ATM pm 1.0=%-5u 2.5=%-5u 10=%-5u "
+        "CF1 pm 1.0=%-5u 2.5=%-5u 10=%-5u ",
+        pData->cf1.m1p0, pData->cf1.m2p5, pData->cf1.m10
+        );
+
+    gCatena.SafePrintf(
+        "ATM pm 1.0=%-5u 2.5=%-5u 10=%-5u ",
+        pData->atm.m1p0, pData->atm.m2p5, pData->atm.m10
+        );
+
+    gCatena.SafePrintf(
         "Dust .3=%-5u .5=%-5u 1.0=%-5u 2.5=%-5u 5=%-5u 10=%-5u\n",
-        pData->cf1.m1p0, pData->cf1.m2p5, pData->cf1.m10,
-        pData->atm.m1p0, pData->atm.m2p5, pData->atm.m10,
         pData->dust.m0p3, pData->dust.m0p5, pData->dust.m1p0,
           pData->dust.m2p5, pData->dust.m5, pData->dust.m10
         );
     }
+
+/****************************************************************************\
+|
+|   The commands -- called automatically from the framework after receiving
+|   and parsing a command from the Serial console.
+|
+\****************************************************************************/
+
+/* process "begin" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdBegin(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s: ", argv[0]);
+        fResult = gPms7003.begin();
+
+        pThis->printf("%s\n", fResult ? "success" : "failed");
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "end" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdEnd(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.end();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "off" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdOff(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.requestOff();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "reset" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdReset(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.requestReset();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "hwsleep" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdHwSleep(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.requestHwSleep();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "sleep" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdSleep(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.requestSleep();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "passive" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdPassive(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.requestPassive();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "normal" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdNormal(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.requestNormal();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "measure" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdMeasure(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.requestMeasure();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "wake" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdWake(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+
+        pThis->printf("%s\n", argv[0]);
+        gPms7003.eventWake();
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "stats" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdStats(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+        const auto stats = gPms7003.getRxStats();
+     
+        pThis->printf("%s\n", argv[0]);
+        pThis->printf("BYTES: In=%u Drops=%u  MSG: Drops=%u CsErr=%u Good=%u\n",
+            stats.CharIn, stats.CharDrops, stats.MsgDrops, stats.BadChecksum, stats.GoodMsg
+            );
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
