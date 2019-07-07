@@ -483,7 +483,7 @@ private:
 
     void allowRequests(std::uint32_t rmask)
         {
-        this->m_requests &= ~rmask;
+        this->m_requests &= rmask;
         }
 
     void resetRequests()

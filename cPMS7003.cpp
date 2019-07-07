@@ -23,13 +23,13 @@ Author:
 //
 // The EPA defines a piecewise linear AQI.
 //  PM2.5           PM10        AQI lower, delta
-//  0..15.4         0..54       0, 50
-//  15.5..40.4      55..154     51, 50
-//  40.5..65.4      155..254    101, 50
-//  65.5-150.4      255..354    151, 50
-//  150.5-250.4     355..424    201, 100
-//  250.5-350.4     425..504    300, 100
-//  350.5-500.4     505..604    400, 100
+//  0:15.4          0:54        0:50
+//  15.5:40.4       55:154      51:50
+//  40.5:65.4       155:254     101:50
+//  65.5:150.4      255:354     151:50
+//  150.5:250.4     355:424     201:100
+//  250.5:350.4     425:504     300:100
+//  350.5:500.4     505:604     400:100
 
 /****************************************************************************\
 |
@@ -187,8 +187,10 @@ cPMS7003::State cPMS7003::fsmDispatch(
                 if (oldRequests != 0 && this->m_hal->isEnabled(DebugFlags::kTrace))
                     {
                     this->m_hal->printf(
-                            "%s: unknown state %u\n",
-                            __func__, unsigned(currentState)
+                            "%s: oldRequests: 0x%x m_requests 0x%x\n",
+                            __func__,
+                            oldRequests,
+                            this->m_requests
                             );
                     }
 
@@ -226,7 +228,8 @@ cPMS7003::State cPMS7003::fsmDispatch(
                 this->allowRequests(
                         rqMask(Request::HwSleep) |
                         rqMask(Request::Sleep) |
-                        rqMask(Request::Normal)
+                        rqMask(Request::Normal) |
+                        rqMask(Request::Measure)
                         );
 
                 if (this->checkRequest(Request::HwSleep))
@@ -237,9 +240,13 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     {
                     newState = State::stPassiveSleepCmd;
                     }
-                else if (this->checkRequest(Request::Passive))
+                else if (this->checkRequest(Request::Normal))
                     {
                     newState = State::stNormalSendCmd;
+                    }
+                else if (this->checkRequest(Request::Measure))
+                    {
+                    newState = State::stPassiveMeasureCmd;
                     }
                 break;
 
@@ -347,8 +354,10 @@ cPMS7003::State cPMS7003::fsmDispatch(
                 if (this->m_hal->isEnabled(DebugFlags::kError))
                     {
                     this->m_hal->printf(
-                            "%s: unknown state %u\n",
-                            __func__, unsigned(currentState)
+                            "%s: unknown state %s (%u)\n",
+                            __func__,
+                            this->getStateName(currentState),
+                            unsigned(currentState)
                             );
                     }
                 break;
@@ -382,6 +391,8 @@ void cPMS7003::poll(void)
 
             if (expected >= 0 && c != expected)
                 {
+                if (this->m_hal->isEnabled(DebugFlags::kTrace))
+                    this->m_hal->printf("%02x ", c);
                 this->m_iRxData = 0;
                 this->m_RxStats.CharDrops += iBuffer + 1;
                 if (iBuffer > 0)
