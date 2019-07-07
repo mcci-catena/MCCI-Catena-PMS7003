@@ -526,7 +526,8 @@ void loop()
 
 void measurementAvailable(
     void *pUserData,
-    const cPMS7003::Measurements<std::uint16_t> *pData
+    const cPMS7003::Measurements<std::uint16_t> *pData,
+    bool fWarmedUp
     )
     {
     gCatena.SafePrintf(
@@ -540,9 +541,10 @@ void measurementAvailable(
         );
 
     gCatena.SafePrintf(
-        "Dust .3=%-5u .5=%-5u 1.0=%-5u 2.5=%-5u 5=%-5u 10=%-5u\n",
+        "Dust .3=%-5u .5=%-5u 1.0=%-5u 2.5=%-5u 5=%-5u 10=%-5u%s\n",
         pData->dust.m0p3, pData->dust.m0p5, pData->dust.m1p0,
-          pData->dust.m2p5, pData->dust.m5, pData->dust.m10
+          pData->dust.m2p5, pData->dust.m5, pData->dust.m10,
+        fWarmedUp ? "" : " (warmup)"
         );
     }
 

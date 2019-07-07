@@ -39,7 +39,12 @@ stRequestPowerDown --> stOff : evTimer && ~fExit
 stRequestPowerDown --> [*] : evTimer && fExit
 
 state Running {
-	[*] --> stNormal
+	[*] --> stWarmup
+
+	stWarmup : entry/ set nMessages = 0
+	stWarmup --> stWarmup : evNewData && nMessages < 10\n / ++nMessages
+	stWarmup --> stNormal : evNewData && nMessages >= 10
+
 	stNormal : entry/ set `SET` hi-Z
 
 	stNormal --> stHwSleep : evHwSleep
@@ -47,15 +52,15 @@ state Running {
 	stNormal --> stPassiveSendCmd : evPassive
 
 	stHwSleep : entry/ set `SET` low
-	stHwSleep --> stNormal : evWake
+	stHwSleep -u-> stWarmup : evWake\nset `SET` 1
 
 	stSleepCmd : entry/ send sleep cmd
 	stSleepCmd --> stSwSleep : evTxDone
 
-	stSwSleep --> stWakeCmd : evWake
+	stSwSleep -r-> stWakeCmd : evWake
 
 	stWakeCmd : entry/ send wakeup cmd
-	stWakeCmd --> stNormal : evTxDone
+	stWakeCmd -u-> stWarmup : evTxDone
 
 	stPassiveSendCmd : entry/ send passive cmd
 	stPassiveSendCmd --> stPassive : evTxDone

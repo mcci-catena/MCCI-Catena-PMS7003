@@ -101,6 +101,8 @@ private:
     typedef decltype(Serial1) cSerial;
     // get minimum reset time in millis.
     static constexpr std::uint32_t getTresetMin() { return 10; }
+    // return the number of messages needed for valid data.
+    static constexpr std::uint32_t getWarmupMessages() { return 11; }
 
     //*******************************************
     // Constructor, etc.
@@ -130,6 +132,7 @@ public:
         stRequestPowerOn,
         stReset,        // reset is asserted.
         stRequestPowerDown,
+        stWarmup,
         stNormal,       // nornmal, idling
         stPassiveSendCmd,
         stNormalSendCmd,
@@ -153,6 +156,7 @@ public:
         case State::stRequestPowerOn: return "stRequestPowerOn";
         case State::stReset: return "stReset";
         case State::stRequestPowerDown: return "stRequestPowerDown";
+        case State::stWarmup: return "stWarmup";
         case State::stNormal: return "stNormal";
         case State::stPassiveSendCmd: return "stPassiveSendCmd";
         case State::stPassive: return "stPassive";
@@ -370,7 +374,7 @@ public:
     // stop the sensor.
     void end();
 
-    typedef void MeasurementCb_t(void *pUserData, const Measurements<std::uint16_t> *pData);
+    typedef void MeasurementCb_t(void *pUserData, const Measurements<std::uint16_t> *pData, bool fWarmedUp);
 
     // Set the callback function
     bool setCallback(MeasurementCb_t *pFn, void *pUserData)
@@ -493,6 +497,7 @@ private:
     //*******************************************
 private:
     void setTimer(std::uint32_t ms);
+    void clearTimer();
 
     //*******************************************
     // Internal utilities
@@ -531,6 +536,9 @@ private:
 
     std::uint32_t           m_timer_start;
     std::uint32_t           m_timer_delay;
+
+    // count of messages rx since reset.
+    std::uint32_t           m_nMessages;
 
     // flags
     union

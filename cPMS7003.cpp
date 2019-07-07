@@ -137,7 +137,7 @@ cPMS7003::State cPMS7003::fsmDispatch(
         if (this->checkEvent(Event::Timer))
             {
             this->m_hal->setReset(cPMS7003Hal::PinState::One);
-            newState = State::stNormal;
+            newState = State::stWarmup;
             }
         break;
 
@@ -170,6 +170,17 @@ cPMS7003::State cPMS7003::fsmDispatch(
             {
             switch (currentState)
                 {
+            case State::stWarmup:
+                if (fEntry)
+                    {
+                    this->m_nMessages = 0;
+                    this->resetEvent(Event::NewData);
+                    }
+                if (this->checkEvent(Event::NewData) &&
+                    this->m_nMessages >= this->getWarmupMessages())
+                    newState = State::stNormal;
+                break;
+
             case State::stNormal:
                 {
                 if (fEntry)
@@ -266,9 +277,16 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     {
                     this->m_hal->setMode(cPMS7003Hal::PinState::Zero);
                     }
-                this->allowRequests(0);
+
+                // for test, we allow a passive request to be posted
+                // prior to a wake
+                this->allowRequests(rqMask(Request::Passive));
+
                 if (this->checkEvent(Event::Wake))
-                    newState = State::stNormal;
+                    {
+                    this->m_hal->setMode(cPMS7003Hal::PinState::One);
+                    newState = State::stWarmup;
+                    }
                 break;
 
             case State::stSleepCmd:
@@ -283,7 +301,9 @@ cPMS7003::State cPMS7003::fsmDispatch(
                 break;
 
             case State::stSwSleep:
-                this->allowRequests(0);
+                // for test, we allow a passive request to be posted
+                // prior to a wake
+                this->allowRequests(rqMask(Request::Passive));
                 if (this->checkEvent(Event::Wake))
                     newState = State::stWakeCmd;
                 break;
@@ -296,7 +316,7 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     this->sendCommand(cmd);
                     }
                 if (this->checkEvent(Event::TxDone))
-                    newState = State::stNormal;
+                    newState = State::stWarmup;
                 break;
 
             case State::stPassiveMeasureCmd:
@@ -389,6 +409,7 @@ void cPMS7003::poll(void)
                     else
                         {
                         ++this->m_RxStats.GoodMsg;
+                        ++this->m_nMessages;
                         this->setEvent(Event::NewData);
                         if (this->m_pMeasurementCb != nullptr)
                             {
@@ -411,7 +432,8 @@ void cPMS7003::poll(void)
 
                             (this->m_pMeasurementCb)(
                                 this->m_pMeasurementUserData,
-                                &m
+                                &m,
+                                this->m_fsm.getState() != State::stWarmup
                                 );
                             }
                         }
@@ -451,4 +473,9 @@ void cPMS7003::setTimer(std::uint32_t ms)
     this->m_timer_start = millis();
     this->m_timer_delay = ms;
     this->m_flags.b.TimerActive = true;
+    }
+
+void cPMS7003::clearTimer()
+    {
+    this->m_flags.b.TimerActive = false;
     }
