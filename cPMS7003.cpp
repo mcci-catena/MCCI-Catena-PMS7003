@@ -196,11 +196,11 @@ cPMS7003::State cPMS7003::fsmDispatch(
 
                 if (this->checkRequest(Request::HwSleep))
                     {
-                    newState = State::stNormalHwSleep;
+                    newState = State::stHwSleep;
                     }
                 else if (this->checkRequest(Request::Sleep))
                     {
-                    newState = State::stNormalSleepCmd;
+                    newState = State::stSleepCmd;
                     }
                 else if (this->checkRequest(Request::Passive))
                     {
@@ -234,11 +234,11 @@ cPMS7003::State cPMS7003::fsmDispatch(
 
                 if (this->checkRequest(Request::HwSleep))
                     {
-                    newState = State::stPassiveHwSleep;
+                    newState = State::stHwSleep;
                     }
                 else if (this->checkRequest(Request::Sleep))
                     {
-                    newState = State::stPassiveSleepCmd;
+                    newState = State::stSleepCmd;
                     }
                 else if (this->checkRequest(Request::Normal))
                     {
@@ -261,16 +261,17 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     newState = State::stNormal;
                 break;
 
-            case State::stNormalHwSleep:
+            case State::stHwSleep:
                 if (fEntry)
                     {
                     this->m_hal->setMode(cPMS7003Hal::PinState::Zero);
                     }
+                this->allowRequests(0);
                 if (this->checkEvent(Event::Wake))
                     newState = State::stNormal;
                 break;
 
-            case State::stNormalSleepCmd:
+            case State::stSleepCmd:
                 if (fEntry)
                     {
                     const WireCommandRunMode cmd {false};
@@ -278,15 +279,16 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     this->sendCommand(cmd);
                     }
                 if (this->checkEvent(Event::TxDone))
-                    newState = State::stNormalSwSleep;
+                    newState = State::stSwSleep;
                 break;
 
-            case State::stNormalSwSleep:
+            case State::stSwSleep:
+                this->allowRequests(0);
                 if (this->checkEvent(Event::Wake))
-                    newState = State::stNormalWakeCmd;
+                    newState = State::stWakeCmd;
                 break;
 
-            case State::stNormalWakeCmd:
+            case State::stWakeCmd:
                 if (fEntry)
                     {
                     const WireCommandRunMode cmd { true };
@@ -295,15 +297,6 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     }
                 if (this->checkEvent(Event::TxDone))
                     newState = State::stNormal;
-                break;
-
-            case State::stPassiveHwSleep:
-                if (fEntry)
-                    {
-                    this->m_hal->setMode(cPMS7003Hal::PinState::Zero);
-                    }
-                if (this->checkEvent(Event::Wake))
-                    newState = State::stPassive;
                 break;
 
             case State::stPassiveMeasureCmd:
@@ -321,33 +314,6 @@ cPMS7003::State cPMS7003::fsmDispatch(
                     {
                     newState = State::stPassive;
                     }
-                break;
-
-            case State::stPassiveSleepCmd:
-                if (fEntry)
-                    {
-                    const WireCommandRunMode cmd {false};
-
-                    this->sendCommand(cmd);
-                    }
-                if (this->checkEvent(Event::TxDone))
-                    newState = State::stPassiveSwSleep;
-                break;
-
-            case State::stPassiveSwSleep:
-                if (this->checkEvent(Event::Wake))
-                    newState = State::stPassiveWakeCmd;
-                break;
-
-            case State::stPassiveWakeCmd:
-                if (fEntry)
-                    {
-                    const WireCommandRunMode cmd { true };
-
-                    this->sendCommand(cmd);
-                    }
-                if (this->checkEvent(Event::TxDone))
-                    newState = State::stPassive;
                 break;
 
             default:

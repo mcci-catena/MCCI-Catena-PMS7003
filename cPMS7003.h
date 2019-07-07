@@ -132,17 +132,13 @@ public:
         stRequestPowerDown,
         stNormal,       // nornmal, idling
         stPassiveSendCmd,
-        stPassive,
         stNormalSendCmd,
-        stNormalHwSleep,
-        stNormalSleepCmd,
-        stNormalSwSleep,
-        stNormalWakeCmd,
-        stPassiveHwSleep,
+        stPassive,
+        stHwSleep,
+        stSleepCmd,
+        stSwSleep,
+        stWakeCmd,
         stPassiveMeasureCmd,
-        stPassiveSleepCmd,
-        stPassiveSwSleep,
-        stPassiveWakeCmd,
         stFinal,        // this name must be present, it's the terminal state.
         };
 
@@ -161,15 +157,11 @@ public:
         case State::stPassiveSendCmd: return "stPassiveSendCmd";
         case State::stPassive: return "stPassive";
         case State::stNormalSendCmd: return "stNormalSendCmd";
-        case State::stNormalHwSleep: return "stNormalHwSleep";
-        case State::stNormalSleepCmd: return "stNormalSleepCmd";
-        case State::stNormalSwSleep: return "stNormalSwSleep";
-        case State::stNormalWakeCmd: return "stNormalWakeCmd";
-        case State::stPassiveHwSleep: return "stPassiveHwSleep";
+        case State::stHwSleep: return "stHwSleep";
+        case State::stSleepCmd: return "stSleepCmd";
+        case State::stSwSleep: return "stSwSleep";
+        case State::stWakeCmd: return "stWakeCmd";
         case State::stPassiveMeasureCmd: return "stPassiveMeasureCmd";
-        case State::stPassiveSleepCmd: return "stPassiveSleepCmd";
-        case State::stPassiveSwSleep: return "stPassiveSwSleep";
-        case State::stPassiveWakeCmd: return "stPassiveWakeCmd";
         case State::stFinal: return "stFinal";
         default: return "<<unknown>>";
             }

@@ -42,45 +42,34 @@ state Running {
 	[*] --> stNormal
 	stNormal : entry/ set `SET` hi-Z
 
-	stNormal --> stNormalHwSleep : evHwSleep
-
-	stNormalHwSleep : entry/ set `SET` low
-	stNormalHwSleep --> stNormal : evWake
-
-	stNormal --> stNormalSleepCmd : evSleep
-	stNormalSleepCmd : entry/ send sleep cmd
-	stNormalSleepCmd --> stNormalSwSleep : evTxDone
-
-	stNormalSwSleep --> stNormalWakeCmd : evWake
-
-	stNormalWakeCmd : entry/ send wakeup cmd
-	stNormalWakeCmd --> stNormal : evTxDone
-
+	stNormal --> stHwSleep : evHwSleep
+	stNormal --> stSleepCmd : evSleep
 	stNormal --> stPassiveSendCmd : evPassive
+
+	stHwSleep : entry/ set `SET` low
+	stHwSleep --> stNormal : evWake
+
+	stSleepCmd : entry/ send sleep cmd
+	stSleepCmd --> stSwSleep : evTxDone
+
+	stSwSleep --> stWakeCmd : evWake
+
+	stWakeCmd : entry/ send wakeup cmd
+	stWakeCmd --> stNormal : evTxDone
+
 	stPassiveSendCmd : entry/ send passive cmd
 	stPassiveSendCmd --> stPassive : evTxDone
 
-	stPassive --> stNormalSendCmd : evNormal
-	stPassive --> stPassiveHwSleep : evHwSleep
-	stPassive --> stPassiveSleepCmd : evRequestSleep
+	stPassive -u-> stNormalSendCmd : evNormal
+	stPassive --> stHwSleep : evHwSleep
+	stPassive --> stSleepCmd : evRequestSleep
 	stPassive --> stPassiveMeasureCmd : evMeasure
 
-	stPassiveHwSleep : entry/ set `SET` low
-	stPassiveHwSleep --> stPassive : evWake / set `SET` hi-z
-
+	stNormalSendCmd : entry/ send normal cmd
+	stNormalSendCmd -u-> stNormal : evTxDone
 
 	stPassiveMeasureCmd : entry/ clear measurement,\n  send measure cmd
-	stPassiveMeasureCmd -> stPassive : evNewData || evTimeout
-
-	stNormalSendCmd : entry/ send normal cmd
-	stNormalSendCmd --> stNormal : evTxDone
-
-	stPassiveSleepCmd : entry/ send sleep cmd
-	stPassiveSleepCmd --> stPassiveSwSleep : evTxDone
-
-	stPassiveSwSleep --> stPassiveWakeCmd : evWake
-	stPassiveWakeCmd : entry/ send wake cmd
-	stPassiveWakeCmd --> stPassive : evTxDone
+	stPassiveMeasureCmd --> stPassive : evNewData || evTimeout
 	}
 
 Running --> stReset : evReset
