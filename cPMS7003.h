@@ -375,7 +375,7 @@ public:
     // and starts the power-up seqeunce.
     bool begin();
 
-    // stop the sensor. 
+    // stop the sensor.
     void end();
 
     typedef void MeasurementCb_t(void *pUserData, const Measurements<std::uint16_t> *pData);

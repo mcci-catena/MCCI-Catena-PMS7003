@@ -355,8 +355,8 @@ bool gfFlash;
 //  The BME280
 Adafruit_BME280 gBme280;
 
-cPMS7003Hal_4630 gPmsHal { cPMS7003::DebugFlags::kError | 
-                           cPMS7003::DebugFlags::kTrace | 
+cPMS7003Hal_4630 gPmsHal { cPMS7003::DebugFlags::kError |
+                           cPMS7003::DebugFlags::kTrace |
                            cPMS7003::DebugFlags::kTxData |
                            cPMS7003::DebugFlags::kRxDiscard };
 cPMS7003 gPms7003 { Serial2, gPmsHal };
@@ -747,7 +747,7 @@ cCommandStream::CommandStatus cmdStats(
         {
         bool fResult;
         const auto stats = gPms7003.getRxStats();
-     
+
         pThis->printf("%s\n", argv[0]);
         pThis->printf("BYTES: In=%u Drops=%u  MSG: Drops=%u CsErr=%u Good=%u\n",
             stats.CharIn, stats.CharDrops, stats.MsgDrops, stats.BadChecksum, stats.GoodMsg
@@ -767,7 +767,7 @@ cCommandStream::CommandStatus cmdDebugMask(
         )
         {
         bool fResult;
-     
+
         pThis->printf("%s\n", argv[0]);
         fResult = true;
         if (argc < 2)
@@ -782,10 +782,10 @@ cCommandStream::CommandStatus cmdDebugMask(
             std::uint32_t newMask;
             bool fOverflow;
             size_t const nArg = std::strlen(argv[1]);
-        
+
             if (nArg != McciAdkLib_BufferToUint32(
                                 argv[1], nArg,
-                                0, 
+                                0,
                                 &newMask, &fOverflow
                                 ) || fOverflow)
                 {
