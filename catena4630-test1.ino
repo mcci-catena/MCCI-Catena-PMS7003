@@ -22,6 +22,7 @@ Author:
 #include <Catena_PollableInterface.h>
 #include <Adafruit_BME280.h>
 #include <cPMS7003.h>
+#include <mcciadk_baselib.h>
 
 #include <cstdint>
 
@@ -195,6 +196,16 @@ public:
         return (mask == 0) || (mask & this->m_debugMask);
         }
 
+    void setDebugFlags(std::uint32_t mask)
+        {
+        this->m_debugMask = mask;
+        }
+
+    std::uint32_t getDebugFlags() const
+        {
+        return this->m_debugMask;
+        }
+
 private:
     static void updatePin(PinState v, PinState old)
         {
@@ -341,7 +352,13 @@ SPIClass gSPI2(
 Catena_Mx25v8035f gFlash;
 bool gfFlash;
 
-cPMS7003Hal_4630 gPmsHal { cPMS7003::DebugFlags::kError | cPMS7003::DebugFlags::kTrace };
+//  The BME280
+Adafruit_BME280 gBme280;
+
+cPMS7003Hal_4630 gPmsHal { cPMS7003::DebugFlags::kError | 
+                           cPMS7003::DebugFlags::kTrace | 
+                           cPMS7003::DebugFlags::kTxData |
+                           cPMS7003::DebugFlags::kRxDiscard };
 cPMS7003 gPms7003 { Serial2, gPmsHal };
 
 // forward reference to the command functions
@@ -356,6 +373,7 @@ cCommandStream::CommandFn cmdNormal;
 cCommandStream::CommandFn cmdMeasure;
 cCommandStream::CommandFn cmdWake;
 cCommandStream::CommandFn cmdStats;
+cCommandStream::CommandFn cmdDebugMask;
 
 // the measurement callback.
 cPMS7003::MeasurementCb_t measurementAvailable;
@@ -374,6 +392,7 @@ static const cCommandStream::cEntry sMyExtraCommmands[] =
         { "measure", cmdMeasure },
         { "wake", cmdWake },
         { "stats", cmdStats },
+        { "debugmask", cmdDebugMask },
         // other commands go here....
         };
 
@@ -402,6 +421,7 @@ void setup()
     setup_printSignOn();
 
     setup_flash();
+    setup_sensors();
     setup_radio();
     setup_pms7003();
     setup_commands();
@@ -457,6 +477,13 @@ void setup_radio()
     {
     gLoRaWAN.begin(&gCatena);
     gCatena.registerObject(&gLoRaWAN);
+    }
+
+void setup_sensors()
+    {
+    Wire.begin();
+    gBme280.begin();
+    Wire.end();
     }
 
 void setup_pms7003()
@@ -727,4 +754,52 @@ cCommandStream::CommandStatus cmdStats(
             );
 
         return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "debugmask" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1] if present is the new mask
+cCommandStream::CommandStatus cmdDebugMask(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+     
+        pThis->printf("%s\n", argv[0]);
+        fResult = true;
+        if (argc < 2)
+            pThis->printf("debug mask: 0x%08x\n", gPmsHal.getDebugFlags());
+        else if (argc > 2)
+            {
+            fResult = false;
+            pThis->printf("too many args\n");
+            }
+        else
+            {
+            std::uint32_t newMask;
+            bool fOverflow;
+            size_t const nArg = std::strlen(argv[1]);
+        
+            if (nArg != McciAdkLib_BufferToUint32(
+                                argv[1], nArg,
+                                0, 
+                                &newMask, &fOverflow
+                                ) || fOverflow)
+                {
+                pThis->printf("invalid mask: %s\n", argv[1]);
+                fResult = false;
+                }
+            else
+                {
+                gPmsHal.setDebugFlags(newMask);
+                pThis->printf("mask is now 0x%08x\n", gPmsHal.getDebugFlags());
+                }
+            }
+
+        return fResult ? cCommandStream::CommandStatus::kSuccess
+                       : cCommandStream::CommandStatus::kInvalidParameter
+                       ;
         }

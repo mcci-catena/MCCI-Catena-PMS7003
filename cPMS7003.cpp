@@ -374,6 +374,17 @@ void cPMS7003::sendCommand(const WireCommand &cmd)
     this->m_flags.b.TxActive = true;
     this->resetEvent(Event::TxDone);
     this->m_port->write(cmd.getBuffer(), sizeof(cmd));
+
+    if (this->m_hal->isEnabled(DebugFlags::kTxData))
+        {
+        this->m_hal->printf("TX:");
+        auto p = cmd.getBuffer();
+        for (auto n = sizeof(cmd); n > 0; ++p, --n)
+            {
+            this->m_hal->printf(" %02x", *p);
+            }
+        this->m_hal->printf("\n");
+        }
     }
 
 void cPMS7003::poll(void)
@@ -391,7 +402,7 @@ void cPMS7003::poll(void)
 
             if (expected >= 0 && c != expected)
                 {
-                if (this->m_hal->isEnabled(DebugFlags::kTrace))
+                if (this->m_hal->isEnabled(DebugFlags::kRxDiscard))
                     this->m_hal->printf("%02x ", c);
                 this->m_iRxData = 0;
                 this->m_RxStats.CharDrops += iBuffer + 1;

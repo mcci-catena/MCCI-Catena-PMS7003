@@ -185,6 +185,8 @@ public:
         kWarning    = 1 << 1,
         kTrace      = 1 << 2,
         kInfo       = 1 << 3,
+        kTxData     = 1 << 4,
+        kRxDiscard  = 1 << 5,
         };
 
     //*******************************************
@@ -299,7 +301,8 @@ private:
         static constexpr std::uint8_t   kSleep = 0xE4;
 
         WireCommand(std::uint8_t a_ucCommand)
-            { WireCommand(a_ucCommand, 0); }
+            : WireCommand(a_ucCommand, 0)
+            {}
 
         WireCommand(std::uint8_t a_ucCommand, std::uint16_t a_usData)
             : ucCommand(a_ucCommand)
