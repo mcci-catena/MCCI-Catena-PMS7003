@@ -19,7 +19,7 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 	- [`cPMS7003Hal`](#cpms7003hal)
 	- [`cPMS7003Hal_4630`](#cpms7003hal_4630)
 	- [`cPMS7003`](#cpms7003)
-	- [cPMS7003::Measurement<>](#cpms7003measurement)
+	- [cPMS7003::Measurements<>](#cpms7003measurements)
 - [Integration with Catena 4630](#integration-with-catena-4630)
 - [Example Sketch: Catena4630-pm7003-demo](#example-sketch-catena4630-pm7003-demo)
 	- [Functions performed by this sketch](#functions-performed-by-this-sketch)
@@ -125,7 +125,49 @@ Features of this FSM:
 5. While the PMS7003 is active, the client may select a low-power sleep mode, eithe via a hardware sleep (using the SET pin) or a software sleep (using a command).
 6. Waking up the PMS7003 from sleep is the same as starting from power off; it must go through a warmup cycle. However, the timing for waking from sleep is much more deterministic. Starting from power off takes anywhere from 5 to 45 seconds (empirically determined); starting from sleep takes about 3 seconds to the first warmup message, and about 12 seconds to full operation.
 
-### cPMS7003::Measurement<>
+### cPMS7003::Measurements<>
+
+The PMS7003 sends three groups of measurements in each data set.
+
+1. It sends atmosphereric particulate matter concentrations binned by particle size: 1.0 micron, 2.5 micron and 10 micron particles. The units of measurement are &mu;grams per cubic meter of air.
+
+2. It sends dust concentrations, also binned by particle size: 0.3, 0.5, 1.0, 2.5, 5 and 10 microns. The units of measurement are particle counts per deciliter of air.
+
+3. It sends "factory" concentrations of particulate matter, binned by particle size as for atmospheric concentrations. These readings are typically only used for factory calibration and test.
+
+The library defines structure templates for convenying this information. The template `cPMS7003::PmBins<typename NumericType>` represents the three bins in a single structure with fields `m1p0` for PM1.0 concentrations, `m2p5` for PM2.5 concentrations, and `m10` for PM10 concentrations. The library reports data using `cPMS7003::PmBins<std::uint16_t>`.
+
+> If you are not familiar with templates, thing of them as C++-aware macros. For example, the template for `PmBins<>` is:
+>
+> ```c++
+> template <typename T>
+> struct PmBins
+>     {
+>     T   m1p0;   // PM1.0 concentration ug/m3
+>     T   m2p5;   // PM2.5 concentration ug/m3
+>     T   m10;    // PM10 concentration ug/m3
+>     };
+> ```
+>
+> `T` is a parameter, which must be a type. When we write `PmBins<uint16_t>`, the compiler generates a structure by sustituting `<uint16_t>` for `T`. So we get:
+>
+> ```c++
+> struct
+>     {
+>     uint16_t    m1p0;   // PM1.0 concentration ug/m3
+>     uint16_t    m2p5;   // PM2.5 concentration ug/m3
+>     uint16_t    m10;    // PM10 concentration ug/m3
+>     };
+> ```
+>
+> We could do this with C preprocessor macros, but templates allow the compiler to understand what's intendend, in a way that's not possible with C macros.
+
+Two other templates are defined by the libarary. `cPMS7003::DustBins<>` similarly creates a structure representing the dust bins. The fields are named `m0p3`, `m0p5`, `m1p0`, `m2p5`, `m5`, and `m10`, corresponding to 0.3, 0.5, 1.0, 2.5, 5, and 10 micron particles.
+
+The measurements (atmospheric, dust, and factory) are combined in a large structure, `cPMS7003::Measurements<>`. This contains the subsfields `atm` and `cf1` (both `PmBins`), representing atmospheric and factory particulate matter measurements, and `dust` (an instance of `DustBins`).
+
+Using templates, it's easy to generate a measurement structure using `float` or `uint32_t`; for each entry; just write `cPMS7003::Measurements<float>`,
+`cPMS7003::Measurements<uint32_t>`, etc.
 
 ## Integration with Catena 4630
 
@@ -171,18 +213,18 @@ Get or set the debug mask, which controls the verbosity of debug output from the
 
 To get the debug mask, enter command `debugmask` on a line by itself.
 
-To set the debug mask, enter <code>debugmask <em>number</em></code>, where number is a C-style number indicating the value. For example, `debugmask 0x31` is the same as `debugmask 49` -- it turns on bits 0, 4, and 5.
+To set the debug mask, enter <code>debugmask <em><u>number</u></em></code>, where *number* is a C-style number indicating the value. For example, `debugmask 0x31` is the same as `debugmask 49` -- it turns on bits 0, 4, and 5.
 
 The following bits are defined.
 
-Bit  |   Mask     | Name | Description
-:---:|:----------:|------|------------
-  0  | 0x00000001 | kError | Enables error messages
-  1  | 0x00000002 | kWarning | Enables warning messages (none are defined at present)
-  2  | 0x00000004 | kTrace   | Enables trace messages. This specifically causes the FSM transitions to be displayed.
-  3  | 0x00000008 | kInfo    | Enables informational messages (none are defined at present)
-  4  | 0x00000010 | kTxData  | Enable display of data sent by the library to the PMS7003
-  5  | 0x00000020 | kRxDiscard | Enable display of discarded receive data bytes
+Bit  |   Mask     |  Name        | Description
+:---:|:----------:|--------------|------------
+  0  | 0x00000001 | `kError`     | Enables error messages
+  1  | 0x00000002 | `kWarning`   | Enables warning messages (none are defined at present)
+  2  | 0x00000004 | `kTrace`     | Enables trace messages. This specifically causes the FSM transitions to be displayed.
+  3  | 0x00000008 | `kInfo`      | Enables informational messages (none are defined at present)
+  4  | 0x00000010 | `kTxData`    | Enable display of data sent by the library to the PMS7003
+  5  | 0x00000020 | `kRxDiscard` | Enable display of discarded receive data bytes
 
 #### `end`
 
@@ -225,4 +267,3 @@ Display the receive statistics. The library keeps track of spurious characters a
 #### `wake`
 
 Bring up the PMS7003. This event is abstract -- it requests the library to do whatever's needed (powering up the PMS7003, waking it up, etc.) to get the PMS7003 to normal state.
-
