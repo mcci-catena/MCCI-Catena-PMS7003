@@ -13,7 +13,7 @@ Author:
 
 */
 
-#include <cPMS7003.h>
+#include <Catena-PMS7003.h>
 
 // see http://aqicn.org/sensor/pms5003-7003/ for some useful
 // info and guidance on how to use this sensor.
