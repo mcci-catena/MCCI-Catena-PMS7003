@@ -9,7 +9,7 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 	- [`cPMS7003Hal_4630`](#cpms7003hal_4630)
 	- [`cPMS7003`](#cpms7003)
 - [Integration with Catena 4630](#integration-with-catena-4630)
-- [Catena4630-pm7003-demo](#catena4630-pm7003-demo)
+- [Example Sketch: Catena4630-pm7003-demo](#example-sketch-catena4630-pm7003-demo)
 	- [Functions performed by this sketch](#functions-performed-by-this-sketch)
 	- [Commands](#commands)
 		- [`begin`](#begin)
@@ -68,7 +68,7 @@ The Catena 4630 has the following features.
 
 - Interface to external Plantower PMS7003 particulate matter sensor, including 5V boost regulator and dedicated connector.
 
-## Catena4630-pm7003-demo
+## Example Sketch: Catena4630-pm7003-demo
 
 The `catena4630-pm7003-demo` example sketch only shows local use of the PMS7003, but it initializes the radio and BME280 so as to minimize power in standby.
 
