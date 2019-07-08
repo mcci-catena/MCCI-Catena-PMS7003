@@ -2,7 +2,10 @@
 
 This library provides a structured interface to a Plantower PMS7003 particulate matter sensor. An example demonstrates the functionality of the PMS7003 with the MCCI Catena 4630 Air-Quality Sensor.
 
-[![**Catena 4630 and PMS7003**](./assets/Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page")
+|        |         |
+|--------|---------|
+| [![**Catena 4630 and PMS7003**](./assets/Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page") | [![**Catena 4630/PMS7003 kit**](./assets/Kit-Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page")
+
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Introduction](#introduction)
