@@ -2,12 +2,21 @@
 
 This library provides a structured interface to a Plantower PMS7003 particulate matter sensor. An example demonstrates the functionality of the PMS7003 with the MCCI Catena 4630 Air-Quality Sensor.
 
+[![**Catena 4630 and PMS7003**](./assets/Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page")
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
+- [Introduction](#introduction)
+- [Header Files](#header-files)
+- [Library and Board Dependencies](#library-and-board-dependencies)
+- [Namespace](#namespace)
+- [Instance Objects](#instance-objects)
+	- [HAL instance object](#hal-instance-object)
+	- [cPMS7003 instance objece](#cpms7003-instance-objece)
 - [Key classes](#key-classes)
 	- [`cPMS7003Hal`](#cpms7003hal)
 	- [`cPMS7003Hal_4630`](#cpms7003hal_4630)
 	- [`cPMS7003`](#cpms7003)
+	- [cPMS7003::Measurement<>](#cpms7003measurement)
 - [Integration with Catena 4630](#integration-with-catena-4630)
 - [Example Sketch: Catena4630-pm7003-demo](#example-sketch-catena4630-pm7003-demo)
 	- [Functions performed by this sketch](#functions-performed-by-this-sketch)
@@ -26,6 +35,63 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 		- [`wake`](#wake)
 
 <!-- /TOC -->
+## Introduction
+
+The Plantower PMS7003 sensor is a laser-scatatering-based particle concentration sensor. It returns two kinds of data:
+
+- Particle concentrations for 1.0, 2.5 and 10 micron particles, expressed as &mu;g/m^3; and
+- Dust concentrations for 0.3, 0.5, 1.0, 2.5, 5, and 10 micron particles, expressed as count/0.1 L of air.
+
+Particle concentrations are expressed in terms of mass/volume; dust concentrations are expressed in terms of count/volume.
+
+This library provides a framework for operating the PMS7003 in an Arduino environment.
+
+Here's the basic UML class diagram.
+<!--
+see assets/cPMS7003.plantuml for source
+-->
+[![**Class Diagream**](http://www.plantuml.com/plantuml/png/PL5DRzD043rxViKebqgejbEAG4GzD3915CKbQkW98RHUJ-n5-s7jZeaiw7zd4rFgDgULP-PzlEVhmC9pRpJaPm2bgtjDYqHkoksx-VmowxImnoryxAravUm2airXU5-kqTEEF5b965pluxDp7X-nABK8WG90uRh1gwRbYDqIeP3IcKxOGTa6rpV5wdQxmftISSEGjCnTM2pol57SzbKMRtCZfKgbOB8YBuvFklHrhwnBencEiWPWsNFhVDJuIjuFM3hdwHpBehZ1mldEUN7mdtpkzO2lvnVl0MuTKvW6KaOq551Pl5ijom-hpDGeF653bYASQgm6x4JWWtDkLHXjAyiE4cu90_bVv54m7cB44Flz_d-9noYF7-SeR8sD5rKraX4adaAlZzptT-kG0Ppb0Asg2SbqFA0XKv4F05OO2fsGX6LiPcm4VuEe0diXUQmUvSPfBIfDNwgV91aU02RdMLP_YzmrsUzPDk7vz_kc8YVBg7KgDgu-2GqdanzltbxENum19WTuzITDJn4JlzcBDCyHpxXc5pEyIdNw2cTszdJo0DTawrZzNm00)](https://www.plantuml.com/plantuml/svg/PL5DRzD043rxViKebqgejbEAG4GzD3915CKbQkW98RHUJ-n5-s7jZeaiw7zd4rFgDgULP-PzlEVhmC9pRpJaPm2bgtjDYqHkoksx-VmowxImnoryxAravUm2airXU5-kqTEEF5b965pluxDp7X-nABK8WG90uRh1gwRbYDqIeP3IcKxOGTa6rpV5wdQxmftISSEGjCnTM2pol57SzbKMRtCZfKgbOB8YBuvFklHrhwnBencEiWPWsNFhVDJuIjuFM3hdwHpBehZ1mldEUN7mdtpkzO2lvnVl0MuTKvW6KaOq551Pl5ijom-hpDGeF653bYASQgm6x4JWWtDkLHXjAyiE4cu90_bVv54m7cB44Flz_d-9noYF7-SeR8sD5rKraX4adaAlZzptT-kG0Ppb0Asg2SbqFA0XKv4F05OO2fsGX6LiPcm4VuEe0diXUQmUvSPfBIfDNwgV91aU02RdMLP_YzmrsUzPDk7vz_kc8YVBg7KgDgu-2GqdanzltbxENum19WTuzITDJn4JlzcBDCyHpxXc5pEyIdNw2cTszdJo0DTawrZzNm00 "Click for SVG version")
+
+`cPMS7003` is the class for instances of the PMS7003 sensor. As the diagram shows, it's a `cPollableObject`, so it will get polled along with everything else.
+
+The class is intended to be portable; so instead of directly talking to hardware, it uses an associated HAL object and an abstract class `cPMS7003Hal`. The library supplies a concrete HAL implementation class, `cPMS7003Hal_4630`, which can be used on a Catena 4630.
+
+## Header Files
+
+- `<Catena-PM7003.h>` is the header file for the `cPMS7003` class.
+- `<Catena-PMS7003Hal.h>` is the header file for the `cPMS7003Hal` class.
+- `<Catena-PMS7003Hal-4630.h>` is the header file for the concrete HAL for the 4630, `cPMS7003Hal_4630`.
+
+## Library and Board Dependencies
+
+Because the main class `cPMS7003` uses `McciCatena::cPollableObject`, the Catena Arduino Platform must be available.
+
+The example sketch targets the Catena 4630 and won't run on other hardware without modification.
+
+## Namespace
+
+The contents of the library are all in namespace `McciCatenaPMS7003`. We recommend you insert the folowing line after including the header files.
+
+```c++
+using namespace McciCatenaPMS7003;
+```
+
+## Instance Objects
+
+To use this library, you must create two instance object.
+
+### HAL instance object
+
+You must create a HAL instance object to use this library. *Don't* try to instantiate an object of type `cPMS7003Hal`. It's an abstract class and can't be instantiated. Instead, instantiate an object from a concreate HAL classs such as `cPMS7003Hal_4630`. The rules for instantiation are set by the concrete class; in this case, you need two arguments. The first argument is an lv that resolves to a `McciCatena::Catena4630` object. The second argument gives the initial value for the debug flags (see the [`debugmask` command](#debugmask)).
+
+### cPMS7003 instance objece
+
+You must create a PMS7003 instance object. This takces the form:
+
+```c++
+cPMS7003 gPms7003 { Serial2, gPmsHal };
+```
+
 ## Key classes
 
 ### `cPMS7003Hal`
@@ -55,6 +121,8 @@ Features of this FSM:
 4. At any time, the client may power down or reset the PMS7003.
 5. While the PMS7003 is active, the client may select a low-power sleep mode, eithe via a hardware sleep (using the SET pin) or a software sleep (using a command).
 6. Waking up the PMS7003 from sleep is the same as starting from power off; it must go through a warmup cycle. However, the timing for waking from sleep is much more deterministic. Starting from power off takes anywhere from 5 to 45 seconds (empirically determined); starting from sleep takes about 3 seconds to the first warmup message, and about 12 seconds to full operation.
+
+### cPMS7003::Measurement<>
 
 ## Integration with Catena 4630
 
