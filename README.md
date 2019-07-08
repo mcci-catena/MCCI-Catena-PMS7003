@@ -135,7 +135,7 @@ Turn the sensor off. Use the [`wake`](#wake) command to power it up.
 
 #### `passive`
 
-Put the sensor into passive mode. In passive mode, the sensor keeps the fan on, but doesn't send measurements. 
+Put the sensor into passive mode. In passive mode, the sensor keeps the fan on, but doesn't send measurements.
 
 If the `passive` command is entered while the sensor is warming up, the library deleays switching to passive mode until the sensor is awake.
 
