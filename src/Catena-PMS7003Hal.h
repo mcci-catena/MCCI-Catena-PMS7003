@@ -22,6 +22,8 @@ Author:
 #include <Catena_PollableInterface.h>
 #include <cstdint>
 
+namespace McciCatenaPMS7003 {
+
 /****************************************************************************\
 |
 |   HAL for PMS7003 sensor
@@ -84,5 +86,7 @@ public:
     // determine whether a print is enabled
     virtual bool isEnabled(std::uint32_t mask) const = 0;
     };
+
+} // namespace McciCatenaPMS7003
 
 #endif // defined _Catena_PMS7003Hal_h_

@@ -138,6 +138,7 @@ std::uint32_t cTimer::peekTicks() const
 \****************************************************************************/
 
 using namespace McciCatena;
+using namespace McciCatenaPMS7003;
 
 Catena gCatena;
 Catena::LoRaWAN gLoRaWAN;

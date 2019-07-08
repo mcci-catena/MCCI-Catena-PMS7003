@@ -22,6 +22,8 @@ Author:
 #include <Catena_FSM.h>
 #include <Catena_PollableInterface.h>
 
+namespace McciCatenaPMS7003 {
+
 /****************************************************************************\
 |
 |   PMS7003 sensor
@@ -491,5 +493,7 @@ private:
             } b;
         }                   m_flags;
     };
+
+} // namespace McciCatenaPMS7003
 
 #endif // defined _cPMS7003_h_

@@ -15,6 +15,8 @@ Author:
 
 #include <Catena-PMS7003.h>
 
+using namespace McciCatenaPMS7003;
+
 // see http://aqicn.org/sensor/pms5003-7003/ for some useful
 // info and guidance on how to use this sensor.
 // For info on AQI: https://stimulatedemissions.wordpress.com/2013/04/10/how-is-the-air-quality-index-aqi-calculated/

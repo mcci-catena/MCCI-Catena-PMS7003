@@ -26,6 +26,8 @@ Author:
 #include <Catena_FSM.h>
 #include <Catena_PollableInterface.h>
 
+namespace McciCatenaPMS7003 {
+
 /****************************************************************************\
 |
 |   HAL for PMS7003 sensor
@@ -227,6 +229,8 @@ private:
     PinState    m_reset;
     PinState    m_mode;
     };
+
+} // namespace McciCatenaPMS7003
 
 # endif // defined ARDUINO_MCCI_CATENA_4630
 #endif // defined _Catena_PMS7003Hal_4630_h_
