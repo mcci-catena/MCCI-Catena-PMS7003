@@ -36,6 +36,7 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 		- [`sleep`](#sleep)
 		- [`stats`](#stats)
 		- [`wake`](#wake)
+- [Useful references](#useful-references)
 
 <!-- /TOC -->
 ## Introduction
@@ -267,3 +268,13 @@ Display the receive statistics. The library keeps track of spurious characters a
 #### `wake`
 
 Bring up the PMS7003. This event is abstract -- it requests the library to do whatever's needed (powering up the PMS7003, waking it up, etc.) to get the PMS7003 to normal state.
+
+## Useful references
+
+The US laws defining P2.5 can be found here: https://www.law.cornell.edu/cfr/text/40/50.13
+
+See http://aqicn.org/sensor/pms5003-7003/ for some useful information and guidance on how to use the PMS7003 sensor for outdoor air quality measurments.
+
+For information on converting PM2.5 and PM10 to AQI numbers, this website has good background: [How is the Air Quality Index AQI calculated?](https://stimulatedemissions.wordpress.com/2013/04/10/how-is-the-air-quality-index-aqi-calculated/).  However, many of the links in that article are broken. The US EPA site references are not current.
+
+The reference info on calculating AQI is online in the EPA archives as [EPA-454/B-06-001, Guideline for Reporting of Daily Air Quality -- Air Quality Index (AQI)](https://archive.epa.gov/ttn/ozone/web/pdf/rg701.pdf). In July 2019, this was pretty hard to find, and it's not clear that the material will be available long term; so this library contains a copy, [rg701 accessed 2019-07-08](assets/rg701.pdf). It is possible that there is a revised version somewhere on the EPA site.
