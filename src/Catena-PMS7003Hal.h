@@ -19,6 +19,7 @@ Author:
 #pragma once
 
 #include <Arduino.h>
+#include <Catena-PMS7003-version.h>
 #include <Catena_PollableInterface.h>
 #include <cstdint>
 

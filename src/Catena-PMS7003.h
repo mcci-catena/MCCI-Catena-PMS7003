@@ -18,6 +18,7 @@ Author:
 
 #pragma once
 
+#include <Catena-PMS7003-version.h>
 #include <Catena-PMS7003Hal.h>
 #include <Catena_FSM.h>
 #include <Catena_PollableInterface.h>
