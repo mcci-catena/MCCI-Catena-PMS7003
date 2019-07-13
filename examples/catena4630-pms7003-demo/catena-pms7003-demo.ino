@@ -289,7 +289,6 @@ void setup_sensors()
     {
     Wire.begin();
     gBme280.begin();
-    Wire.end();
     }
 
 void setup_pms7003()
