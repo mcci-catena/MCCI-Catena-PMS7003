@@ -326,16 +326,21 @@ public:
     void suspend();
     void resume();
 
-    void requestOff() { setRequest(Request::Off); }
-    void requestReset() { setRequest(Request::Reset); }
-    void requestHwSleep() { setRequest(Request::HwSleep); }
-    void requestSleep() { setRequest(Request::Sleep); }
-    void requestPassive() { setRequest(Request::Passive); }
-    void requestNormal() { setRequest(Request::Normal); }
-    void requestMeasure() { setRequest(Request::Measure); }
+    void requestOff()       { setRequest(Request::Off); }
+    void requestReset()     { setRequest(Request::Reset); }
+    void requestHwSleep()   { setRequest(Request::HwSleep); }
+    void requestSleep()     { setRequest(Request::Sleep); }
+    void requestPassive()   { setRequest(Request::Passive); }
+    void requestNormal()    { setRequest(Request::Normal); }
+    void requestMeasure()   { setRequest(Request::Measure); }
 
     void eventWake() { setEvent(Event::Wake); }
     RxStats getRxStats() { return this->m_RxStats; }
+
+    cPMS7003Hal *getHal() const
+        {
+        return this->m_hal;
+        }
 
     //*******************************************
     // Event handling
