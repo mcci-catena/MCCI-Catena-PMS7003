@@ -472,6 +472,8 @@ void cPMS7003::poll(void)
 
 void cPMS7003::setTimer(std::uint32_t ms)
     {
+    this->resetEvent(Event::Timer);
+
     this->m_timer_start = millis();
     this->m_timer_delay = ms;
     this->m_flags.b.TimerActive = true;
@@ -480,4 +482,5 @@ void cPMS7003::setTimer(std::uint32_t ms)
 void cPMS7003::clearTimer()
     {
     this->m_flags.b.TimerActive = false;
+    this->resetEvent(Event::Timer);
     }
