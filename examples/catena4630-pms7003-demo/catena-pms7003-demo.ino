@@ -1,9 +1,9 @@
 /*
 
-Module: catena4630-test1.ino
+Module: catena-pms7003-demo.ino
 
 Function:
-    Basic sketch for explorign the function of the Catena4630 and PMS7003.
+    Basic sketch for exploring the function of the Catena4630 and PMS7003.
 
 Copyright:
     See accompanying LICENSE file for copyright and license information.
@@ -269,6 +269,14 @@ void setup_printSignOn()
     gCatena.SafePrintf("\n%s%s\n", dashes, dashes);
 
     gCatena.SafePrintf("This is %s.\n", filebasename(__FILE__));
+        {
+        char sRegion[16];
+        gCatena.SafePrintf("Target network: %s / %s\n",
+                        gLoRaWAN.GetNetworkName(),
+                        gLoRaWAN.GetRegionString(sRegion, sizeof(sRegion))
+                        );
+        }
+
     gCatena.SafePrintf("System clock rate is %u.%03u MHz\n",
         ((unsigned)gCatena.GetSystemClockRate() / (1000*1000)),
         ((unsigned)gCatena.GetSystemClockRate() / 1000 % 1000)
