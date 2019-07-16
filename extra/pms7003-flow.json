@@ -1,0 +1,313 @@
+[
+	{
+	    "id": "7d5b92cc.87fd5c",
+	    "type": "subflow",
+	    "name": "Set Node Mapping",
+	    "info": "Input is a message\nOutput is same message, with display_key set to \"{app_id}.{dev_id}\" and display_name set to a friendly name from the built-in map.",
+	    "in": [
+		{
+		    "x": 108,
+		    "y": 350,
+		    "wires": [
+			{
+			    "id": "869f01eb.168818"
+			}
+		    ]
+		}
+	    ],
+	    "out": [
+		{
+		    "x": 515,
+		    "y": 346,
+		    "wires": [
+			{
+			    "id": "869f01eb.168818",
+			    "port": 0
+			}
+		    ]
+		}
+	    ]
+	},
+	{
+	    "id": "869f01eb.168818",
+	    "type": "function",
+	    "z": "7d5b92cc.87fd5c",
+	    "name": "Map devID to friendy name",
+	    "func": "// set up the table of names\nvar nodeMap = global.get(\"nodeMap\");\n//if (nodeMap === undefined)\n    {\n    // populate the map if needed.\n    nodeMap = {};\n    nodeMap['mcci-ghq-farm.catena4450m102-koipond'] = {display_id: \"Koi pond/garden\" };\n    nodeMap['mcci-engineering-test.test-44'] = {display_id:\"Terry's office\" };\n    nodeMap['mcci-ghq-power.ghq-power'] = {display_id:\"Basement\" };\n    nodeMap['mcci-ghq-power.ghq-server'] = {display_id:\"Server room\" };\n    nodeMap['mcci-ghq-power.gateway-96'] = {display_id:\"Gateway Commons\" };\n    nodeMap['mcci-ghq-power.gateway-95'] = {display_id:\"Gateway Center\" };\n    nodeMap['mcci-ghq-power.shursave-52'] = {display_id:\"ShurSave T'burg\" };\n    nodeMap['mcci-ghq-power.holt-45'] = {display_id:\"HOLT\" };\n    nodeMap['mcci-ghq-power.holt-46'] = {display_id:\"HOLT House\" };\n    nodeMap['mcci-ghq-power.holt-env-indoor-6f'] = {display_id:\"HOLT office env #1\" };\n    nodeMap['mcci-ghq-power.holt-env-outdoor-6f'] = {display_id:\"HOLT outdoor env #1\" };\n    nodeMap['mcci-ghq-power.ib-front-grid'] = {display_id:\"Ithaca Bakery front grid\" };\n    nodeMap['mcci-ghq-power.ib-front-solar'] = {display_id:\"Ithaca Bakery front solar\" };\n    nodeMap['mcci-ghq-power.ib-rear-grid'] = {display_id:\"Ithaca Bakery rear grid\" };\n    nodeMap['mcci-ghq-power.ib-rear-solar'] = {display_id:\"Ithaca Bakery rear solar\" };\n    nodeMap['mcci-engineering-test.test-04f'] = {display_id:\"Taitem grid\" };\n    nodeMap['mcci-engineering-test.test-050'] = {display_id:\"Taitem solar\" };\n    nodeMap['iseechange-01.iseechange-01-a2'] = {display_id:\"MCCI (Cadillac/Senate NW)\", lat: 29.99863, long: -90.08208 };\n    nodeMap['iseechange-01.iseechange-01-a3'] = {display_id:\"Milton/Cadillac East (1261 Milton)\", lat: 29.9956, long: -90.08139  };\n    nodeMap['iseechange-01.iseechange-01-a4'] = {display_id:\"MCCI (3934 Buchanan)\", lat: 29.99733, long: -90.08079 };\n    nodeMap['iseechange-01.iseechange-01-a5'] = {display_id:\"Buchanan/Milton SW\", lat:29.99565, long:-90.08068 }; \n    nodeMap['iseechange-01.iseechange-01-a6'] = {display_id:\"Buchanan/Milton NW\", lat:29.99551, long: -90.08067 };\n    nodeMap['iseechange-01.iseechange-01-ab'] = {display_id:\"Cadillac/Milton NE\", lat:29.99594, long:-90.08175 };\n    nodeMap['workbetter-02-66'] = {display_id:\"WorkBetter GCW #1\" };\n    nodeMap['workbetter-02-67'] = {display_id:\"WorkBetter GCW #2\" };\n\n    global.set(\"nodeMap\", nodeMap);\n    }\n\n// use app_id.dev_id to form a key\n// and put into the message\nvar sKey = msg.app_id + \".\" + msg.dev_id;\n\nmsg.display_key = sKey;\n\n// translate the key if needed.\nif (sKey in nodeMap)\n    {\n    msg.display_id = nodeMap[sKey].display_id;\n    if (\"lat\" in nodeMap[sKey])\n        msg.display_lat = nodeMap[sKey].lat;\n    if (\"long\" in nodeMap[sKey])\n        msg.display_long = nodeMap[sKey].long;\n    }\nelse\n    {\n    msg.display_id = sKey;\n    }\n\nreturn msg;",
+	    "outputs": 1,
+	    "noerr": 0,
+	    "x": 316,
+	    "y": 349,
+	    "wires": [
+		[]
+	    ]
+	},
+	{
+	    "id": "1e004a0e.0bdc0e",
+	    "type": "subflow",
+	    "name": "Catena Port 1 fmt 0x20 Message Decoder (4630 PMS7003)",
+	    "info": "Output port 1 is the complete data set, in a normal object form. Dewpoint, heatindex, and normalized pressure have been added.\n\nOutput port 2 is the interesting application data, split into the fields and tags required by influxdb. Timestamp is not supplied, so InfluxDB will tag the data with the arrival time at the database.\n\nOutput port 3 is the RF-related data, split into fields plus tags, suitable for injection into the RF daatabase.\n",
+	    "in": [
+		{
+		    "x": 108,
+		    "y": 171,
+		    "wires": [
+			{
+			    "id": "fdd85879.72847"
+			}
+		    ]
+		}
+	    ],
+	    "out": [
+		{
+		    "x": 1276,
+		    "y": 329,
+		    "wires": [
+			{
+			    "id": "b48b7424.3565d",
+			    "port": 0
+			}
+		    ]
+		},
+		{
+		    "x": 1276,
+		    "y": 424,
+		    "wires": [
+			{
+			    "id": "c1c13fda.fb228",
+			    "port": 0
+			}
+		    ]
+		},
+		{
+		    "x": 1282,
+		    "y": 505,
+		    "wires": [
+			{
+			    "id": "a2df0f5f.c1e6",
+			    "port": 0
+			}
+		    ]
+		}
+	    ]
+	},
+	{
+	    "id": "c1c13fda.fb228",
+	    "type": "function",
+	    "z": "1e004a0e.0bdc0e",
+	    "name": "Prepare for DataBase",
+	    "func": "var result =\n{\n    payload:\n[{\n        msgID: msg._msgid,\n        counter: msg.counter,\n        //time: new Date(msg.metadata.time).getTime(),\n},\n{\n    devEUI: msg.hardware_serial,\n    devID: msg.dev_id,\n    displayName: msg.display_id,\n    displayKey: msg.display_key,\n    nodeType: msg.local.nodeType,\n    platformType: msg.local.platformType,\n    radioType: msg.local.radioType,\n    applicationName: msg.local.applicationName,\n}]\n};\n\nvar t = result.payload[0];\nvar tags = result.payload[1];\n\n// copy the fields we want as values to the database slot 0.\nvar value_keys = [ \n            \"vBat\", \"vBus\", \"vSys\", \"boot\", \"tempC\", \"tDewC\", \"tHeatIndexF\", \"p\", \"p0\", \"rh\", \"pm\", \"dust\", \"aqi\", \"aqi_partial\"\n            ];\n\n// copy the fields we want as tags to the database slot 1\nvar tag_keys = [\n    /* none */\n    ];\n\nfunction insert_value(pOutput, sInKey, inValue)\n    {\n    if (typeof inValue == \"object\" )\n        {\n        for (var i in inValue)\n            insert_value(pOutput, sInKey + \".\" + i, inValue[i]);\n        }\n    else\n        pOutput[sInKey] = inValue;\n    }\n\nfor (var i in value_keys)\n    {\n    var key = value_keys[i];\n    if (key in msg.payload)\n        {\n        // if we get an object generate an entry for each\n        insert_value(t, key, msg.payload[key]);\n        }\n    }\n\nfor (var i in tag_keys)\n    {\n    var key = tag_keys[i];\n    if (key in msg.payload)\n        tags[key] = msg.payload[key];\n    }\n\nreturn result;\n",
+	    "outputs": 1,
+	    "noerr": 0,
+	    "x": 883.5001220703125,
+	    "y": 423,
+	    "wires": [
+		[]
+	    ]
+	},
+	{
+	    "id": "8b4538fc.45225",
+	    "type": "function",
+	    "z": "1e004a0e.0bdc0e",
+	    "name": "Decode data (port 1 format 20)",
+	    "func": "/*\n\nName:   catena-message-port1-format-20-decoder-node-red.js\n\nFunction:\n    Decode port 0x01 format 0x20 messages for Node-RED.\n\nCopyright and License:\n    See accompanying LICENSE file at https://github.com/mcci-catena/MCCI-Catena-PMS7003/\n\nAuthor:\n    Terry Moore, MCCI Corporation   July 2019\n\n*/\n\n// calculate dewpoint (degrees C) given temperature (C) and relative humidity (0..100)\n// from http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html\n// rearranged for efficiency and to deal sanely with very low (< 1%) RH\nfunction dewpoint(t, rh) {\n    var c1 = 243.04;\n    var c2 = 17.625;\n    var h = rh / 100;\n    if (h <= 0.01)\n        h = 0.01;\n    else if (h > 1.0)\n        h = 1.0;\n\n    var lnh = Math.log(h);\n    var tpc1 = t + c1;\n    var txc2 = t * c2;\n    var txc2_tpc1 = txc2 / tpc1;\n\n    var tdew = c1 * (lnh + txc2_tpc1) / (c2 - lnh - txc2_tpc1);\n    return tdew;\n}\n\n/*\n\nName:   CalculateHeatIndex()\n\nDescription:\n        Calculate the NWS heat index given dry-bulb T and RH\n\nDefinition:\n        function CalculateHeatIndex(t, rh) -> value or null\n\nDescription:\n        T is a Farentheit temperature in [76,120]; rh is a\n        relative humidity in [0,100]. The heat index is computed\n        and returned; or an error is returned.\n\nReturns:\n        number => heat index in Farenheit.\n        null => error.\n\nReferences:\n        https://github.com/mcci-catena/heat-index/\n        https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml\n\n        Results was checked against the full chart at iweathernet.com:\n        https://www.iweathernet.com/wxnetcms/wp-content/uploads/2015/07/heat-index-chart-relative-humidity-2.png\n\n        The MCCI-Catena heat-index site has a test js script to generate CSV to\n        match the chart, a spreadsheet that recreates the chart, and a\n        spreadsheet that compares results.\n\n*/\n\nfunction CalculateHeatIndex(t, rh) {\n    var tRounded = Math.floor(t + 0.5);\n\n    // return null outside the specified range of input parameters\n    if (tRounded < 76 || tRounded > 126)\n        return null;\n    if (rh < 0 || rh > 100)\n        return null;\n\n    // according to the NWS, we try this first, and use it if we can\n    var tHeatEasy = 0.5 * (t + 61.0 + ((t - 68.0) * 1.2) + (rh * 0.094));\n\n    // The NWS says we use tHeatEasy if (tHeatHeasy + t)/2 < 80.0\n    // This is the same computation:\n    if ((tHeatEasy + t) < 160.0)\n            return tHeatEasy;\n\n    // need to use the hard form, and possibly adjust.\n    var t2 = t * t;         // t squared\n    var rh2 = rh * rh;      // rh squared\n    var tResult =\n        -42.379 +\n        (2.04901523 * t) +\n        (10.14333127 * rh) +\n        (-0.22475541 * t * rh) +\n        (-0.00683783 * t2) +\n        (-0.05481717 * rh2) +\n        (0.00122874 * t2 * rh) +\n        (0.00085282 * t * rh2) +\n        (-0.00000199 * t2 * rh2);\n\n    // these adjustments come from the NWA page, and are needed to\n    // match the reference table.\n    var tAdjust;\n    if (rh < 13.0 && 80.0 <= t && t <= 112.0)\n        tAdjust = -((13.0 - rh) / 4.0) * Math.sqrt((17.0 - Math.abs(t - 95.0)) / 17.0);\n    else if (rh > 85.0 && 80.0 <= t && t <= 87.0)\n        tAdjust = ((rh - 85.0) / 10.0) * ((87.0 - t) / 5.0);\n    else\n        tAdjust = 0;\n\n    // apply the adjustment\n    tResult += tAdjust;\n\n    // finally, the reference tables have no data above 183 (rounded),\n    // so filter out answers that we have no way to vouch for.\n    if (tResult >= 183.5)\n        return null;\n    else\n        return tResult;\n}\n\n/*\n\nName:   CalculatePmAqi()\n\nDescription:\n    Calculate the NWS AQI given PM 1, PM 2.5 and PM 10 concentrations\n\nDefinition:\n    function CalculatePmAqi(pm2_5, pm10) -> { AQI_2_5=x, AQI_10=x, AQI=x }\n\nDescription:\n    pm2_5 is the PM2.5 concentration, pm10 is the PM10 concentration, in ug/m3.\n    If either is null, the corresponding conversion is skipped. AQI is the greater\n    of the resulting two AQIs.\n\nReturns:\n    An object with three fields.\n\n*/\n\nfunction CalculatePmAqi(pm2_5, pm10)\n    {\n    var result = {};\n    result.AQI_2_5 = null;\n    result.AQI_10 = null;\n    result.AQI = null;\n\n    function interpolate(v, t)\n        {\n        if (v === null)\n            return null;\n\n        var i;\n        for (i = t.length - 2; i > 0; --i)\n            if (t[i][0] <= v)\n                break;\n\n        var entry = t[i];\n        var baseX = entry[0];\n        var baseY = entry[1];\n        var dx = (t[i+1][0] - baseX);\n        var f = (v - baseX);\n        var dy = (t[i+1][1] - baseY);\n        return Math.floor(baseY + f * dy / dx + 0.5);\n        }\n\n    var t2_5 = [[0, 0], [15.5, 51], [40.5, 101], [65.5, 151], [150.5, 201], [250.5, 301], [350.5, 401]];\n    var t10 =  [[0, 0], [55, 51], [155, 101], [255, 151], [355, 201], [425, 301], [505, 401]];\n\n    result.AQI_2_5 = interpolate(pm2_5, t2_5);\n    result.AQI_10 = interpolate(pm10, t10);\n    if (result.AQI_2_5 === null)\n        result.AQI = result.AQI_10;\n    else if (result.AQI_10 === null)\n        result.AQI = result.AQI_2_5;\n    else if (result.AQI_2_5 > result.AQI_10)\n        result.AQI = result.AQI_2_5;\n    else\n        result.AQI = result.AQI_10;\n\n    return result;\n    }\n\nfunction DecodeU16(Parse) {\n    var i = Parse.i;\n    var bytes = Parse.bytes;\n    var Vraw = (bytes[i] << 8) + bytes[i + 1];\n    Parse.i = i + 2;\n    return Vraw;\n}\n\nfunction DecodeUflt16(Parse) {\n    var rawUflt16 = DecodeU16(Parse);\n    var exp1 = rawUflt16 >> 12;\n    var mant1 = (rawUflt16 & 0xFFF) / 4096.0;\n    var f_unscaled = mant1 * Math.pow(2, exp1 - 15);\n    return f_unscaled;\n}\n\nfunction DecodePM(Parse) {\n    return DecodeUflt16(Parse) * 65536.0;\n}\n\nfunction DecodeDust(Parse) {\n    return DecodeUflt16(Parse) * 65536.0;\n}\n\nfunction DecodeI16(Parse) {\n    var Vraw = DecodeU16(Parse);\n\n    // interpret uint16 as an int16 instead.\n    if (Vraw & 0x8000)\n        Vraw += -0x10000;\n\n    return Vraw;\n}\n\nfunction DecodeI16(Parse) {\n    var i = Parse.i;\n    var bytes = Parse.bytes;\n    var Vraw = (bytes[i] << 8) + bytes[i + 1];\n    Parse.i = i + 2;\n\n    // interpret uint16 as an int16 instead.\n    if (Vraw & 0x8000)\n        Vraw += -0x10000;\n\n    return Vraw;\n}\n\nfunction DecodeV(Parse) {\n    return DecodeI16(Parse) / 4096.0;\n}\n\nfunction Decoder(bytes, port) {\n    // Decode an uplink message from a buffer\n    // (array) of bytes to an object of fields.\n    var decoded = {};\n\n    if (! (port === 1))\n        return null;\n\n    var uFormat = bytes[0];\n    if (! (uFormat === 0x20))\n        return null;\n\n    // an object to help us parse.\n    var Parse = {};\n    Parse.bytes = bytes;\n    // i is used as the index into the message. Start with the flag byte.\n    Parse.i = 1;\n\n    // fetch the bitmap.\n    var flags = bytes[Parse.i++];\n\n    if (flags & 0x1) {\n        decoded.vBat = DecodeV(Parse);\n    }\n\n    if (flags & 0x2) {\n        decoded.vSys = DecodeV(Parse);\n    }\n\n    if (flags & 0x4) {\n        decoded.vBus = DecodeV(Parse);\n    }\n\n    if (flags & 0x8) {\n        var iBoot = bytes[Parse.i++];\n        decoded.boot = iBoot;\n    }\n\n    if (flags & 0x10) {\n        // we have temp, pressure, RH\n        decoded.tempC = DecodeI16(Parse) / 256;\n        decoded.p = DecodeU16(Parse) * 4 / 100.0;\n        decoded.rh = DecodeU16(Parse) * 100 / 65535.0;\n        decoded.tDewC = dewpoint(decoded.tempC, decoded.rh);\n        var tHeat = CalculateHeatIndex(decoded.tempC * 1.8 + 32, decoded.rh);\n        if (tHeat !== null)\n            decoded.tHeatIndexF = tHeat;\n    }\n\n    if (flags & 0x20) {\n        decoded.pm = {};\n        decoded.pm[\"1.0\"] = DecodePM(Parse);\n        decoded.pm[\"2.5\"] = DecodePM(Parse);\n        decoded.pm[\"10\"] = DecodePM(Parse);\n\n        decoded.aqi_partial = {};\n        var aqi = CalculatePmAqi(decoded.pm[\"1.0\"], null);\n        decoded.aqi_partial[\"1.0\"] = aqi.AQI;\n\n        aqi = CalculatePmAqi(decoded.pm[\"2.5\"], decoded.pm[\"10\"]);\n        decoded.aqi_partial[\"2.5\"] = aqi.AQI_2_5;\n        decoded.aqi_partial[\"10\"] = aqi.AQI_10;\n        decoded.aqi = aqi.AQI;\n    }\n\n    if (flags & 0x40) {\n        decoded.dust = {};\n        decoded.dust[\"0.3\"] = DecodeDust(Parse);\n        decoded.dust[\"0.5\"] = DecodeDust(Parse);\n        decoded.dust[\"1.0\"] = DecodeDust(Parse);\n        decoded.dust[\"2.5\"] = DecodeDust(Parse);\n        decoded.dust[\"5\"] = DecodeDust(Parse);\n        decoded.dust[\"10\"] = DecodeDust(Parse);\n    }\n\n    return decoded;\n}\n\n/*\n\nNode-RED function body.\n\nInput:\n    msg     the object to be decoded.  \n    \n            msg.payload_raw is taken\n            as the raw payload if present; otheriwse msg.payload\n            is taken to be a raw payload.\n\n            msg.port is taken to be the LoRaWAN port nubmer.\n\n\nReturns:\n    This function returns a message body. It's a mutation of the\n    input msg; msg.payload is changed to the decoded data, and\n    msg.local is set to additional application-specific information.\n\n*/\n\nvar bytes;\n\nif (\"payload_raw\" in msg) {\n    // the console already decoded this\n    bytes = msg.payload_raw;  // pick up data for convenience\n    // msg.payload_fields still has the decoded data from ttn\n} else {\n    // no console decode\n    bytes = msg.payload;  // pick up data for conveneince\n}\n\n// try to decode.\nvar result = Decoder(bytes, msg.port);\n\nif (result === null) {\n    // not one of ours: report an error, return without a value,\n    // so that Node-RED doesn't propagate the message any further.\n    var eMsg = \"not port 1/fmt 0x20! port=\" + msg.port.toString();\n    if (port === 1) {\n        if (Buffer.byteLength(bytes) > 0) {\n            eMsg = eMsg + \" fmt=\" + bytes[0].toString();\n        } else {\n            eMsg = eMsg + \" <no fmt byte>\"\n        }\n    }\n    node.error(eMsg);\n    return;\n}\n\n// now update msg with the new payload and new .local field\n// the old msg.payload is overwritten.\nmsg.payload = result;\nmsg.local =\n    {\n        nodeType: \"Catena 4630\",\n        platformType: \"Catena 463x\",\n        radioType: \"Murata\",\n        applicationName: \"Air particle sensor\"\n    };\n\nreturn msg;\n",
+	    "outputs": 1,
+	    "noerr": 0,
+	    "x": 370,
+	    "y": 294,
+	    "wires": [
+		[
+		    "b48b7424.3565d"
+		]
+	    ]
+	},
+	{
+	    "id": "b48b7424.3565d",
+	    "type": "function",
+	    "z": "1e004a0e.0bdc0e",
+	    "name": "Add normalized pressure",
+	    "func": "//\n// calculate sealevel pressure given altitude of sensor and station\n// pressure.\n//\nvar h = 305; // meters\nif (\"p\" in msg.payload)\n    {\n    var p = msg.payload.p;\n    var L = -0.0065;\n    var Tb = 288.15;\n    var ep = -5.2561;\n    \n    var p0 = p * Math.pow(1 + (L * h)/Tb, ep);\n    msg.payload.p0 = p0;\n    }\nreturn msg;\n",
+	    "outputs": 1,
+	    "noerr": 0,
+	    "x": 370.5000305175781,
+	    "y": 420.99998474121094,
+	    "wires": [
+		[
+		    "c1c13fda.fb228",
+		    "a2df0f5f.c1e6"
+		]
+	    ]
+	},
+	{
+	    "id": "a2df0f5f.c1e6",
+	    "type": "function",
+	    "z": "1e004a0e.0bdc0e",
+	    "name": "Prep for RF store",
+	    "func": "var result = \n{\n    payload:\n[{\n    frequency: msg.metadata.frequency,\n    channel: msg.metadata.gateways[0].channel,\n    datarate: msg.metadata.data_rate,\n    codingrate: msg.metadata.coding_rate,\n    rssi: msg.metadata.gateways[0].rssi,\n    snr: msg.metadata.gateways[0].snr,\n    msgID: msg._msgid,\n    counter: msg.counter,\n},\n{\n    devEUI: msg.hardware_serial,\n    devID: msg.dev_id,\n    displayName: msg.display_id,\n    displayKey: msg.display_key,\n    gatewayEUI: msg.metadata.gateways[0].gtw_id,\n    nodeType: msg.local.nodeType,\n    platformType: msg.local.platformType,\n    radioType: msg.local.radioType,\n    applicationName: msg.local.applicationName,\n    // we make these tags so we can plot rssi by \n    // channel, etc.\n    frequency: msg.metadata.frequency,\n    channel: msg.metadata.gateways[0].channel,\n    datarate: msg.metadata.data_rate,\n    codingrate: msg.metadata.coding_rate,\n}]\n};\nreturn result;",
+	    "outputs": 1,
+	    "noerr": 0,
+	    "x": 894.8888736300999,
+	    "y": 507.2222069634331,
+	    "wires": [
+		[]
+	    ]
+	},
+	{
+	    "id": "fdd85879.72847",
+	    "type": "subflow:7d5b92cc.87fd5c",
+	    "z": "1e004a0e.0bdc0e",
+	    "x": 357.0000305175781,
+	    "y": 174,
+	    "wires": [
+		[
+		    "8b4538fc.45225"
+		]
+	    ]
+	},
+	{
+	    "id": "8bd72047.7aee1",
+	    "type": "comment",
+	    "z": "1e004a0e.0bdc0e",
+	    "name": "Data after preparation",
+	    "info": "",
+	    "x": 1076.749972873264,
+	    "y": 259.0833825005425,
+	    "wires": []
+	},
+	{
+	    "id": "573eeb58.52a04c",
+	    "type": "tab",
+	    "label": "PM7003 (Catena 4630)"
+	},
+	{
+	    "id": "e4030128.128fd8",
+	    "type": "ttn message",
+	    "z": "573eeb58.52a04c",
+	    "name": "mcci-pm-test1",
+	    "app": "368e2db3.d28472",
+	    "dev_id": "",
+	    "field": "",
+	    "x": 153,
+	    "y": 205,
+	    "wires": [
+		[
+		    "a34fd9ad.31793"
+		]
+	    ]
+	},
+	{
+	    "id": "a34fd9ad.31793",
+	    "type": "subflow:1e004a0e.0bdc0e",
+	    "z": "573eeb58.52a04c",
+	    "x": 511,
+	    "y": 309.5,
+	    "wires": [
+		[
+		    "b75a2114.f51ff8"
+		],
+		[
+		    "d826e0c.f1ffe2",
+		    "c665e875.704de8"
+		],
+		[
+		    "97dbb607.75d5",
+		    "c4a28610.03c5b"
+		]
+	    ]
+	},
+	{
+	    "id": "b75a2114.f51ff8",
+	    "type": "debug",
+	    "z": "573eeb58.52a04c",
+	    "name": "PMS7003 output",
+	    "active": true,
+	    "console": "false",
+	    "complete": "true",
+	    "x": 1103,
+	    "y": 210,
+	    "wires": []
+	},
+	{
+	    "id": "d826e0c.f1ffe2",
+	    "type": "influxdb out",
+	    "z": "573eeb58.52a04c",
+	    "influxdb": "c8cff50a.4ba598",
+	    "name": "Write to pms7003_db..Catena4630Data",
+	    "measurement": "Catena4630Data",
+	    "precision": "",
+	    "retentionPolicy": "",
+	    "x": 1122,
+	    "y": 305,
+	    "wires": []
+	},
+	{
+	    "id": "97dbb607.75d5",
+	    "type": "influxdb out",
+	    "z": "573eeb58.52a04c",
+	    "influxdb": "c8cff50a.4ba598",
+	    "name": "Write to pms7003_db..RFmetrics",
+	    "measurement": "RFmetrics",
+	    "precision": "",
+	    "retentionPolicy": "",
+	    "x": 1107,
+	    "y": 382,
+	    "wires": []
+	},
+	{
+	    "id": "c4a28610.03c5b",
+	    "type": "influxdb out",
+	    "z": "573eeb58.52a04c",
+	    "influxdb": "be94add.799ae5",
+	    "name": "Store RF metrics (global)",
+	    "measurement": "RFmetrics",
+	    "precision": "",
+	    "retentionPolicy": "",
+	    "x": 1085,
+	    "y": 457,
+	    "wires": []
+	},
+	{
+	    "id": "c665e875.704de8",
+	    "type": "debug",
+	    "z": "573eeb58.52a04c",
+	    "name": "PMS7003 Database output",
+	    "active": true,
+	    "console": "false",
+	    "complete": "true",
+	    "x": 1140,
+	    "y": 263,
+	    "wires": []
+	},
+	{
+	    "id": "368e2db3.d28472",
+	    "type": "ttn app",
+	    "z": "",
+	    "appId": "REDACTED",
+	    "region": "us-west",
+	    "accessKey": "ttn-account-v2.REDACTED"
+	},
+	{
+	    "id": "c8cff50a.4ba598",
+	    "type": "influxdb",
+	    "z": "",
+	    "hostname": "influxdb",
+	    "port": "8086",
+	    "protocol": "http",
+	    "database": "pms7003_db",
+	    "name": "pms7003_db",
+	    "usetls": false,
+	    "tls": ""
+	},
+	{
+	    "id": "be94add.799ae5",
+	    "type": "influxdb",
+	    "z": "",
+	    "hostname": "influxdb",
+	    "port": "8086",
+	    "protocol": "http",
+	    "database": "RFmetrics",
+	    "name": "RF metrics",
+	    "usetls": false,
+	    "tls": ""
+	}
+    ]
