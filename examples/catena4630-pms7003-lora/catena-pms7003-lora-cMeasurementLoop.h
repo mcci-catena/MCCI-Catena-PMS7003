@@ -103,7 +103,8 @@ public:
             }
         }
 
-    static constexpr uint8_t kUplinkPort = 3;
+    static constexpr uint8_t kUplinkPort = 1;
+    static constexpr uint8_t kMessageFormat = 0x20;
 
     enum class Flags : uint8_t
             {
@@ -151,6 +152,9 @@ public:
         {
         this->m_fUsbPower = (Vbus > 3.0f);
         }
+
+    // request that the measurement loop be active/inactive
+    void requestActive(bool fEnable);
 
 private:
     static constexpr unsigned kNumMeasurements = 10;

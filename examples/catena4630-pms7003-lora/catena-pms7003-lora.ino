@@ -28,6 +28,7 @@ Author:
 #include <Catena_PollableInterface.h>
 #include <Catena_TxBuffer.h>
 #include <Adafruit_BME280.h>
+#include <arduino_lmic.h>
 #include <Catena-PMS7003.h>
 #include <Catena-PMS7003Hal-4630.h>
 #include <mcciadk_baselib.h>
@@ -80,14 +81,17 @@ cPMS7003 gPms7003 { Serial2, gPmsHal };
 cMeasurementLoop gMeasurementLoop { gPms7003, gBme280 };
 
 // forward reference to the command functions
-cCommandStream::CommandFn cmdStats;
 cCommandStream::CommandFn cmdDebugMask;
+cCommandStream::CommandFn cmdRunStop;
+cCommandStream::CommandFn cmdStats;
 
 // the individual commmands are put in this table
 static const cCommandStream::cEntry sMyExtraCommmands[] =
         {
-        { "stats", cmdStats },
         { "debugmask", cmdDebugMask },
+        { "run", cmdRunStop },
+        { "stats", cmdStats },
+        { "stop", cmdRunStop },
         // other commands go here....
         };
 
@@ -116,6 +120,7 @@ void setup()
     setup_radio();
     setup_pms7003();
     setup_commands();
+    setup_measurement();
     }
 
 void setup_platform()
@@ -190,6 +195,7 @@ void setup_radio()
     {
     gLoRaWAN.begin(&gCatena);
     gCatena.registerObject(&gLoRaWAN);
+    LMIC_setClockError(5 * MAX_CLOCK_ERROR / 100);
     }
 
 void setup_sensors()
@@ -217,6 +223,17 @@ void setup_commands()
         */
         nullptr
         );
+    }
+
+void setup_measurement()
+    {
+    if (gLoRaWAN.IsProvisioned())
+        gMeasurementLoop.requestActive(true);
+    else
+        {
+        gCatena.SafePrintf("not provisioned, idling\n");
+        gMeasurementLoop.requestActive(false);
+        }
     }
 
 /****************************************************************************\

@@ -35,6 +35,7 @@ using namespace McciCatenaPMS7003;
 
 extern cPMS7003 gPms7003;
 extern cPMS7003Hal_4630 gPmsHal;
+extern cMeasurementLoop gMeasurementLoop;
 
 /****************************************************************************\
 |
@@ -42,27 +43,6 @@ extern cPMS7003Hal_4630 gPmsHal;
 |   and parsing a command from the Serial console.
 |
 \****************************************************************************/
-
-/* process "stats" -- args are ignored */
-// argv[0] is the matched command name.
-// argv[1..argc-1] are the (ignored) arguments
-cCommandStream::CommandStatus cmdStats(
-        cCommandStream *pThis,
-        void *pContext,
-        int argc,
-        char **argv
-        )
-        {
-        bool fResult;
-        const auto stats = gPms7003.getRxStats();
-
-        pThis->printf("%s\n", argv[0]);
-        pThis->printf("BYTES: In=%u Drops=%u  MSG: Drops=%u CsErr=%u Good=%u\n",
-            stats.CharIn, stats.CharDrops, stats.MsgDrops, stats.BadChecksum, stats.GoodMsg
-            );
-
-        return cCommandStream::CommandStatus::kSuccess;
-        }
 
 /* process "debugmask" -- args are ignored */
 // argv[0] is the matched command name.
@@ -111,3 +91,44 @@ cCommandStream::CommandStatus cmdDebugMask(
                        : cCommandStream::CommandStatus::kInvalidParameter
                        ;
         }
+
+/* process "run" or "stop" -- args are ignored */
+// argv[0] is the matched command name.
+cCommandStream::CommandStatus cmdRunStop(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fEnable;
+
+        pThis->printf("%s measurement loop\n", argv[0]);
+
+        fEnable = argv[0][0] == 'r';
+        gMeasurementLoop.requestActive(fEnable);
+ 
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+
+/* process "stats" -- args are ignored */
+// argv[0] is the matched command name.
+// argv[1..argc-1] are the (ignored) arguments
+cCommandStream::CommandStatus cmdStats(
+        cCommandStream *pThis,
+        void *pContext,
+        int argc,
+        char **argv
+        )
+        {
+        bool fResult;
+        const auto stats = gPms7003.getRxStats();
+
+        pThis->printf("%s\n", argv[0]);
+        pThis->printf("BYTES: In=%u Drops=%u  MSG: Drops=%u CsErr=%u Good=%u\n",
+            stats.CharIn, stats.CharDrops, stats.MsgDrops, stats.BadChecksum, stats.GoodMsg
+            );
+
+        return cCommandStream::CommandStatus::kSuccess;
+        }
+

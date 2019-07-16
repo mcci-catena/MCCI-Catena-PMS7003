@@ -58,6 +58,16 @@ void cMeasurementLoop::end()
         }
     }
 
+void cMeasurementLoop::requestActive(bool fEnable)
+    {
+    if (fEnable)
+        this->m_rqActive = true;
+    else
+        this->m_rqInactive = true;
+
+    this->m_fsm.eval();
+    }
+
 cMeasurementLoop::State cMeasurementLoop::fsmDispatch(
     cMeasurementLoop::State currentState,
     bool fEntry
@@ -281,11 +291,11 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
     flag = Flags(0);
 
     // insert format byte
-    b.put(0x20);
+    b.put(kMessageFormat);
 
     // insert a byte that will become flags later.
-    b.put(std::uint8_t(flag));
     std::uint8_t * const pFlag = b.getp();
+    b.put(std::uint8_t(flag));
 
     // send Vbat
     float Vbat = gCatena.ReadVbat();
@@ -300,7 +310,7 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
     gCatena.SafePrintf("Vbus:    %d mV\n", (int) (Vbus * 1000.0f));
     this->setVbus(Vbus);
     b.putV(Vbus);
-    flag |= Flags::Vbat;
+    flag |= Flags::Vbus;
 
     // send boot count
     uint32_t bootCount;
@@ -415,7 +425,7 @@ void cMeasurementLoop::processOneMeasurement(
         sum += *p;
 
     // divide by n * 65536.0
-    float const div = (p2 - p1 + 1); // * 65535.0f;
+    float const div = (p2 - p1 + 1) * 65535.0f;
 
     // store into r.
     r = sum / div;
@@ -443,6 +453,8 @@ bool cMeasurementLoop::postProcess(
     processOneMeasurement(results.dust.m2p5, this->m_Dust.m2p5);
     processOneMeasurement(results.dust.m5,   this->m_Dust.m5);
     processOneMeasurement(results.dust.m10,  this->m_Dust.m10);
+
+    return true;
     }
 
 /****************************************************************************\
@@ -506,7 +518,18 @@ void cMeasurementLoop::poll()
     {
     bool fEvent;
 
+    // no need to evaluate unless something happens.
     fEvent = false;
+
+    // if we're not active, and no request, nothing to do.
+    if (! this->m_active)
+        {
+        if (! this->m_rqActive)
+            return;
+
+        // we're asked to go active. We'll want to eval.
+        fEvent = true;
+        }
 
     if (this->m_fTimerActive)
         {
