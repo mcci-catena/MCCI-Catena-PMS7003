@@ -109,13 +109,20 @@ cPMS7003::State cPMS7003::fsmDispatch(
         if (this->m_flags.b.Exit)
             newState = State::stFinal;
         else if (this->checkEvent(Event::Wake))
+            {
             newState = State::stRequestPowerOn;
+            // clear all pending requests
+            this->allowRequests(0);
+            }
         break;
 
     case State::stRequestPowerOn:
         if (fEntry)
             {
             this->setTimer(this->m_hal->set5v(true));
+            // ignore any requests from before; we'll
+            // process them after we get done with power-up
+            this->allowRequests(0);
             }
         if (this->checkEvent(Event::Timer))
             {
