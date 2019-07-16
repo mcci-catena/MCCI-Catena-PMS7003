@@ -162,7 +162,7 @@ void encodeMeasurement(Buffer &buf, Measurements &m)
 
     // sent the type byte
     buf.clear();
-    buf.push_back(0x20u);
+    buf.push_back(0x20);
     buf.push_back(0u); // flag byte.
 
     // put the fields
