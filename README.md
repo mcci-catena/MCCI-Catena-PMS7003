@@ -21,21 +21,7 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 	- [`cPMS7003`](#cpms7003)
 	- [cPMS7003::Measurements<>](#cpms7003measurements)
 - [Integration with Catena 4630](#integration-with-catena-4630)
-- [Example Sketch: Catena4630-pm7003-demo](#example-sketch-catena4630-pm7003-demo)
-	- [Functions performed by this sketch](#functions-performed-by-this-sketch)
-	- [Commands](#commands)
-		- [`begin`](#begin)
-		- [`debugmask`](#debugmask)
-		- [`end`](#end)
-		- [`hwsleep`](#hwsleep)
-		- [`measure`](#measure)
-		- [`normal`](#normal)
-		- [`off`](#off)
-		- [`passive`](#passive)
-		- [`reset`](#reset)
-		- [`sleep`](#sleep)
-		- [`stats`](#stats)
-		- [`wake`](#wake)
+- [Example Sketches](#example-sketches)
 - [Useful references](#useful-references)
 
 <!-- /TOC -->
@@ -182,92 +168,11 @@ The Catena 4630 has the following features.
 
 - Interface to external Plantower PMS7003 particulate matter sensor, including 5V boost regulator and dedicated connector.
 
-## Example Sketch: Catena4630-pm7003-demo
+## Example Sketches
 
-The `catena4630-pm7003-demo` example sketch only shows local use of the PMS7003, but it initializes the radio and BME280 so as to minimize power in standby.
+The `catena4630-pm7003-demo` example sketch allows interactive use of the PMS7003.
 
-### Functions performed by this sketch
-
-This sketch has the following features.
-
-- During startup, the sketch initializes the PMS7003 and sets up a commmand line environment allowing you to experiment with various features of the PMS7003 driver.
-
-- The sketch also initializes the LoRaWAN radio and the BME200 sensors to put them in a low-power state.
-
-- During operation, the sketch monitors the PMS7003 and displays the data received from the PMS7003 on the serial monitor.
-
-- The sketch uses the [Catena Arduino Platform](https://github.com/mcci-catena/Catena-Arduino-Platform.git), and therefore the basic provisioning commands from the platform are always availble while the sketch is running. This also allows user commands to be added if desired.
-
-- The `McciCatena::cPollableObject` paradigm is used to simplify the coordination of the activities described above.
-
-### Commands
-
-In addition to the [default commands](https://github.com/mcci-catena/Catena-Arduino-Platform#command-summary) provided by the library, the sketch provides the following commands:
-
-#### `begin`
-
-Call the the `cPMS7003.begin()` method. Note that the `setup()` routine already calls this; this is only provided for test purposes (after you use the `end` command, you must use the `begin` command to restart).
-
-#### `debugmask`
-
-Get or set the debug mask, which controls the verbosity of debug output from the library.
-
-To get the debug mask, enter command `debugmask` on a line by itself.
-
-To set the debug mask, enter <code>debugmask <em><u>number</u></em></code>, where *number* is a C-style number indicating the value. For example, `debugmask 0x31` is the same as `debugmask 49` -- it turns on bits 0, 4, and 5.
-
-The following bits are defined.
-
-Bit  |   Mask     |  Name        | Description
-:---:|:----------:|--------------|------------
-  0  | 0x00000001 | `kError`     | Enables error messages
-  1  | 0x00000002 | `kWarning`   | Enables warning messages (none are defined at present)
-  2  | 0x00000004 | `kTrace`     | Enables trace messages. This specifically causes the FSM transitions to be displayed.
-  3  | 0x00000008 | `kInfo`      | Enables informational messages (none are defined at present)
-  4  | 0x00000010 | `kTxData`    | Enable display of data sent by the library to the PMS7003
-  5  | 0x00000020 | `kRxDiscard` | Enable display of discarded receive data bytes
-
-#### `end`
-
-Invoke the `cPMS7003::end()` method. This shuts down the sensor, the library and the HAL.
-
-#### `hwsleep`
-
-Request that the library put the PMS7003 to sleep using the `SET` pin. According to the documentation, the `SET` pin has a pullup, so this takes static power (but causes the sensor to stop the fan).  Exit sleep using the [`wake`](#wake) command.
-
-#### `measure`
-
-In passive mode, the `measure` command triggers a single measurement request. The library doesn't retry, and the PMS7003 often misses the first `measure` command after entering passive mode. (We're considering improving the lower-level API, in which case this command may get updated.)
-
-#### `normal`
-
-Switch the sensor to normal mode. In normal mode, the PMS7003 sends measurments periodicaly. (The datasheet claims every 2 seconds, but on our sensors it seems to be every 0.8 seconds.)
-
-#### `off`
-
-Turn the sensor off. Use the [`wake`](#wake) command to power it up.
-
-#### `passive`
-
-Put the sensor into passive mode. In passive mode, the sensor keeps the fan on, but doesn't send measurements.
-
-If the `passive` command is entered while the sensor is warming up, the library deleays switching to passive mode until the sensor is awake.
-
-#### `reset`
-
-Reset the PMS7003 using the hardware reset pin. This requires a warmup for recovery.
-
-#### `sleep`
-
-Put the sensor into sleep mode using a software command. This saves the power from driving the `SET` pin low, but it's not clear whether the PMS7003 power is as low duing software sleep as during hardware sleep.
-
-#### `stats`
-
-Display the receive statistics. The library keeps track of spurious characters and messages; this is an easy way to get access.
-
-#### `wake`
-
-Bring up the PMS7003. This event is abstract -- it requests the library to do whatever's needed (powering up the PMS7003, waking it up, etc.) to get the PMS7003 to normal state.
+The `catena4630-pm7003-lora` example is a completely worked remote sensor sketch with power management.
 
 ## Useful references
 
@@ -278,3 +183,5 @@ See http://aqicn.org/sensor/pms5003-7003/ for some useful information and guidan
 For information on converting PM2.5 and PM10 to AQI numbers, this website has good background: [How is the Air Quality Index AQI calculated?](https://stimulatedemissions.wordpress.com/2013/04/10/how-is-the-air-quality-index-aqi-calculated/).  However, many of the links in that article are broken. The US EPA site references are not current.
 
 The reference info on calculating AQI is online in the EPA archives as [EPA-454/B-06-001, Guideline for Reporting of Daily Air Quality -- Air Quality Index (AQI)](https://archive.epa.gov/ttn/ozone/web/pdf/rg701.pdf). In July 2019, this was pretty hard to find, and it's not clear that the material will be available long term; so this library contains a copy, [rg701 accessed 2019-07-08](assets/rg701.pdf). It is possible that there is a revised version somewhere on the EPA site.
+
+[Aqicn.org](http://aqicn.org) has real-time AQI data for reference from around the world. New York State provides real-time the AQI data for Rochester New York, available [here](http://aqicn.org/city/usa/newyork/rochester/).
