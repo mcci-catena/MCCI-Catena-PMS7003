@@ -183,7 +183,7 @@ The following input data can be used to test decoders.
   "p": 1017.12,
   "rh": 60,
   "tDewC": 21.390006900020513,
-  "tHeat": 91.09765809999998,
+  "tHeatIndexF": 91.09765809999998,
   "tempC": 30
 }
 ```
@@ -236,7 +236,7 @@ The following input data can be used to test decoders.
   },
   "rh": 60,
   "tDewC": 21.390006900020513,
-  "tHeat": 91.09765809999998,
+  "tHeatIndexF": 91.09765809999998,
   "tempC": 30,
   "vBat": 2,
   "vBus": 4.89990234375,
