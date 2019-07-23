@@ -22,6 +22,7 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 	- [cPMS7003::Measurements<>](#cpms7003measurements)
 - [Integration with Catena 4630](#integration-with-catena-4630)
 - [Example Sketches](#example-sketches)
+- [Additional code for dashboards](#additional-code-for-dashboards)
 - [Useful references](#useful-references)
 
 <!-- /TOC -->
@@ -174,6 +175,10 @@ The `catena4630-pm7003-demo` example sketch allows interactive use of the PMS700
 
 The `catena4630-pm7003-lora` example is a completely worked remote sensor sketch with power management.
 
+## Additional code for dashboards
+
+Check the [extra](./extra) directory for JavaScript code for calculating AQI, decoding data from LoRaWAN messages, and Node-RED and Grafana assets for presenting the data using the [docker-ttn-dashboard](https://github.com/mcci-catena/docker-ttn-dashboard).
+
 ## Useful references
 
 The US laws defining P2.5 can be found here: https://www.law.cornell.edu/cfr/text/40/50.13
@@ -182,6 +187,12 @@ See http://aqicn.org/sensor/pms5003-7003/ for some useful information and guidan
 
 For information on converting PM2.5 and PM10 to AQI numbers, this website has good background: [How is the Air Quality Index AQI calculated?](https://stimulatedemissions.wordpress.com/2013/04/10/how-is-the-air-quality-index-aqi-calculated/).  However, many of the links in that article are broken. The US EPA site references are not current.
 
-The reference info on calculating AQI is online in the EPA archives as [EPA-454/B-06-001, Guideline for Reporting of Daily Air Quality -- Air Quality Index (AQI)](https://archive.epa.gov/ttn/ozone/web/pdf/rg701.pdf). In July 2019, this was pretty hard to find, and it's not clear that the material will be available long term; so this library contains a copy, [rg701 accessed 2019-07-08](assets/rg701.pdf). It is possible that there is a revised version somewhere on the EPA site.
+The reference info on calculating AQI is online in the EPA archives as [EPA-454/B-06-001, Guideline for Reporting of Daily Air Quality -- Air Quality Index (AQI)](https://archive.epa.gov/ttn/ozone/web/pdf/rg701.pdf). In July 2019, this was pretty hard to find, and it's not clear that the material will be available long term; so this library contains a copy, [rg701 accessed 2019-07-08](assets/rg701.pdf).
+
+The PM2.5 calculations were revised in 2012. There is a good summary in the [aqicn.org "Revised PM2.5 AQI breakpoints"](http://aqicn.org/faq/2013-09-09/revised-pm25-aqi-breakpoints/) page. The links to EPA data there are broken, too.
+
+The EPA data can be found in the Internet Archives [here](http://web.archive.org/web/20160326114514/https://www3.epa.gov/airquality/particlepollution/2012/decfsstandards.pdf); a copy is in this repo, [decfsstandards.pdf accessed 2019-07-22](assets/decfsstandards.pdf).
+
+The relevant (and authoritative) rule from the [Federal Register](https://www.govinfo.gov/content/pkg/FR-2013-01-15/pdf/2012-30946.pdf) is also in this repo, [page 97, accessed 2019-07-22](assets/2012-30946-page97.pdf)
 
 [Aqicn.org](http://aqicn.org) has real-time AQI data for reference from around the world. New York State provides real-time the AQI data for Rochester New York, available [here](http://aqicn.org/city/usa/newyork/rochester/).
