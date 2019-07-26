@@ -201,7 +201,7 @@ void setup_radio()
 void setup_sensors()
     {
     Wire.begin();
-    gMeasurementLoop.setBme280(gBme280.begin());
+    gMeasurementLoop.setBme280(gBme280.begin(BME280_ADDRESS, Adafruit_BME280::OPERATING_MODE::Sleep));
     }
 
 void setup_pms7003()
