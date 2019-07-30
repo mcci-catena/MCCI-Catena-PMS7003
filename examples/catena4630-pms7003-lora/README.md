@@ -4,6 +4,9 @@ This sketch is a fully-worked air-quality sensor based on the Catena 4630 and th
 
 Data is read and transmitted from the PMS7003 every six minutes (although it tries to run every 30 seconds for the first ten measurements after each reboot).
 
+<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Functions performed by this sketch](#functions-performed-by-this-sketch)
@@ -14,6 +17,8 @@ Data is read and transmitted from the PMS7003 every six minutes (although it tri
 	- [`wake`](#wake)
 
 <!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
 ## Functions performed by this sketch
 

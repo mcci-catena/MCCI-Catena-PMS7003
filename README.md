@@ -6,6 +6,8 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 |--------|---------|
 | [![**Catena 4630 and PMS7003**](./assets/Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page") | [![**Catena 4630/PMS7003 kit**](./assets/Kit-Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page")
 
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Introduction](#introduction)
@@ -26,6 +28,9 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 - [Useful references](#useful-references)
 
 <!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
+
 ## Introduction
 
 The Plantower PMS7003 sensor is a laser-scatatering-based particle concentration sensor. It returns two kinds of data:
@@ -125,7 +130,7 @@ The PMS7003 sends three groups of measurements in each data set.
 
 The library defines structure templates for convenying this information. The template `cPMS7003::PmBins<typename NumericType>` represents the three bins in a single structure with fields `m1p0` for PM1.0 concentrations, `m2p5` for PM2.5 concentrations, and `m10` for PM10 concentrations. The library reports data using `cPMS7003::PmBins<std::uint16_t>`.
 
-> If you are not familiar with templates, thing of them as C++-aware macros. For example, the template for `PmBins<>` is:
+> If you are not familiar with templates, think of them as C++-aware macros. For example, the template for `PmBins<>` is:
 >
 > ```c++
 > template <typename T>
@@ -181,9 +186,9 @@ Check the [extra](./extra) directory for JavaScript code for calculating AQI, de
 
 ## Useful references
 
-The US laws defining P2.5 can be found here: https://www.law.cornell.edu/cfr/text/40/50.13
+The US laws defining PM2.5 can be found [here](https://www.law.cornell.edu/cfr/text/40/50.13).
 
-See http://aqicn.org/sensor/pms5003-7003/ for some useful information and guidance on how to use the PMS7003 sensor for outdoor air quality measurments.
+See [acicn.org psm5003-7003](http://aqicn.org/sensor/pms5003-7003/) for some useful information and guidance on how to use the PMS7003 sensor for outdoor air quality measurments.
 
 For information on converting PM2.5 and PM10 to AQI numbers, this website has good background: [How is the Air Quality Index AQI calculated?](https://stimulatedemissions.wordpress.com/2013/04/10/how-is-the-air-quality-index-aqi-calculated/).  However, many of the links in that article are broken. The US EPA site references are not current.
 

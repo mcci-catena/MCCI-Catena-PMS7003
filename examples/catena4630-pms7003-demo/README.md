@@ -1,6 +1,10 @@
 # Example Sketch: Catena4630-pm7003-demo
 
 The `catena4630-pm7003-demo` example sketch allows interactive use of the PMS7003.
+
+<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Functions performed by this sketch](#functions-performed-by-this-sketch)
@@ -19,6 +23,9 @@ The `catena4630-pm7003-demo` example sketch allows interactive use of the PMS700
 	- [`wake`](#wake)
 
 <!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
+
 ## Functions performed by this sketch
 
 This sketch has the following features.
