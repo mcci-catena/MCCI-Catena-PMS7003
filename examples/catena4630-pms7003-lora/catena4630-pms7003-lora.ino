@@ -49,8 +49,6 @@ Catena gCatena;
 Catena::LoRaWAN gLoRaWAN;
 StatusLed gLed (Catena::PIN_STATUS_LED);
 
-cTimer uplinkTimer;
-
 SPIClass gSPI2(
     Catena::PIN_SPI2_MOSI,
     Catena::PIN_SPI2_MISO,
