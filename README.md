@@ -26,6 +26,10 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 - [Example Sketches](#example-sketches)
 - [Additional code for dashboards](#additional-code-for-dashboards)
 - [Useful references](#useful-references)
+- [Meta](#meta)
+	- [License](#license)
+	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
+	- [Trademarks](#trademarks)
 
 <!-- /TOC -->
 <!-- markdownlint-restore -->
@@ -33,7 +37,7 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 
 ## Introduction
 
-The Plantower PMS7003 sensor is a laser-scatatering-based particle concentration sensor. It returns two kinds of data:
+The Plantower PMS7003 sensor is a laser-scattering-based particle concentration sensor. It returns two kinds of data:
 
 - Particle concentrations for 1.0, 2.5 and 10 micron particles, expressed as &mu;g/m^3; and
 - Dust concentrations for 0.3, 0.5, 1.0, 2.5, 5, and 10 micron particles, expressed as count/0.1 L of air.
@@ -46,7 +50,7 @@ Here's the basic UML class diagram.
 <!--
 see assets/cPMS7003.plantuml for source
 -->
-[![**Class Diagream**](http://www.plantuml.com/plantuml/png/PL5DRzD043rxViKebqgejbEAG4GzD3915CKbQkW98RHUJ-n5-s7jZeaiw7zd4rFgDgULP-PzlEVhmC9pRpJaPm2bgtjDYqHkoksx-VmowxImnoryxAravUm2airXU5-kqTEEF5b965pluxDp7X-nABK8WG90uRh1gwRbYDqIeP3IcKxOGTa6rpV5wdQxmftISSEGjCnTM2pol57SzbKMRtCZfKgbOB8YBuvFklHrhwnBencEiWPWsNFhVDJuIjuFM3hdwHpBehZ1mldEUN7mdtpkzO2lvnVl0MuTKvW6KaOq551Pl5ijom-hpDGeF653bYASQgm6x4JWWtDkLHXjAyiE4cu90_bVv54m7cB44Flz_d-9noYF7-SeR8sD5rKraX4adaAlZzptT-kG0Ppb0Asg2SbqFA0XKv4F05OO2fsGX6LiPcm4VuEe0diXUQmUvSPfBIfDNwgV91aU02RdMLP_YzmrsUzPDk7vz_kc8YVBg7KgDgu-2GqdanzltbxENum19WTuzITDJn4JlzcBDCyHpxXc5pEyIdNw2cTszdJo0DTawrZzNm00)](https://www.plantuml.com/plantuml/svg/PL5DRzD043rxViKebqgejbEAG4GzD3915CKbQkW98RHUJ-n5-s7jZeaiw7zd4rFgDgULP-PzlEVhmC9pRpJaPm2bgtjDYqHkoksx-VmowxImnoryxAravUm2airXU5-kqTEEF5b965pluxDp7X-nABK8WG90uRh1gwRbYDqIeP3IcKxOGTa6rpV5wdQxmftISSEGjCnTM2pol57SzbKMRtCZfKgbOB8YBuvFklHrhwnBencEiWPWsNFhVDJuIjuFM3hdwHpBehZ1mldEUN7mdtpkzO2lvnVl0MuTKvW6KaOq551Pl5ijom-hpDGeF653bYASQgm6x4JWWtDkLHXjAyiE4cu90_bVv54m7cB44Flz_d-9noYF7-SeR8sD5rKraX4adaAlZzptT-kG0Ppb0Asg2SbqFA0XKv4F05OO2fsGX6LiPcm4VuEe0diXUQmUvSPfBIfDNwgV91aU02RdMLP_YzmrsUzPDk7vz_kc8YVBg7KgDgu-2GqdanzltbxENum19WTuzITDJn4JlzcBDCyHpxXc5pEyIdNw2cTszdJo0DTawrZzNm00 "Click for SVG version")
+[![**Class Diagram**](http://www.plantuml.com/plantuml/png/PL5DRzD043rxViKebqgejbEAG4GzD3915CKbQkW98RHUJ-n5-s7jZeaiw7zd4rFgDgULP-PzlEVhmC9pRpJaPm2bgtjDYqHkoksx-VmowxImnoryxAravUm2airXU5-kqTEEF5b965pluxDp7X-nABK8WG90uRh1gwRbYDqIeP3IcKxOGTa6rpV5wdQxmftISSEGjCnTM2pol57SzbKMRtCZfKgbOB8YBuvFklHrhwnBencEiWPWsNFhVDJuIjuFM3hdwHpBehZ1mldEUN7mdtpkzO2lvnVl0MuTKvW6KaOq551Pl5ijom-hpDGeF653bYASQgm6x4JWWtDkLHXjAyiE4cu90_bVv54m7cB44Flz_d-9noYF7-SeR8sD5rKraX4adaAlZzptT-kG0Ppb0Asg2SbqFA0XKv4F05OO2fsGX6LiPcm4VuEe0diXUQmUvSPfBIfDNwgV91aU02RdMLP_YzmrsUzPDk7vz_kc8YVBg7KgDgu-2GqdanzltbxENum19WTuzITDJn4JlzcBDCyHpxXc5pEyIdNw2cTszdJo0DTawrZzNm00)](https://www.plantuml.com/plantuml/svg/PL5DRzD043rxViKebqgejbEAG4GzD3915CKbQkW98RHUJ-n5-s7jZeaiw7zd4rFgDgULP-PzlEVhmC9pRpJaPm2bgtjDYqHkoksx-VmowxImnoryxAravUm2airXU5-kqTEEF5b965pluxDp7X-nABK8WG90uRh1gwRbYDqIeP3IcKxOGTa6rpV5wdQxmftISSEGjCnTM2pol57SzbKMRtCZfKgbOB8YBuvFklHrhwnBencEiWPWsNFhVDJuIjuFM3hdwHpBehZ1mldEUN7mdtpkzO2lvnVl0MuTKvW6KaOq551Pl5ijom-hpDGeF653bYASQgm6x4JWWtDkLHXjAyiE4cu90_bVv54m7cB44Flz_d-9noYF7-SeR8sD5rKraX4adaAlZzptT-kG0Ppb0Asg2SbqFA0XKv4F05OO2fsGX6LiPcm4VuEe0diXUQmUvSPfBIfDNwgV91aU02RdMLP_YzmrsUzPDk7vz_kc8YVBg7KgDgu-2GqdanzltbxENum19WTuzITDJn4JlzcBDCyHpxXc5pEyIdNw2cTszdJo0DTawrZzNm00 "Click for SVG version")
 
 `cPMS7003` is the class for instances of the PMS7003 sensor. As the diagram shows, it's a `cPollableObject`, so it will get polled along with everything else.
 
@@ -66,7 +70,7 @@ The example sketch targets the Catena 4630 and won't run on other hardware witho
 
 ## Namespace
 
-The contents of the library are all in namespace `McciCatenaPMS7003`. We recommend you insert the folowing line after including the header files.
+The contents of the library are all in namespace `McciCatenaPMS7003`. We recommend you insert the following line after including the header files.
 
 ```c++
 using namespace McciCatenaPMS7003;
@@ -201,3 +205,19 @@ The EPA data can be found in the Internet Archives [here](http://web.archive.org
 The relevant (and authoritative) rule from the [Federal Register](https://www.govinfo.gov/content/pkg/FR-2013-01-15/pdf/2012-30946.pdf) is also in this repo, [page 97, accessed 2019-07-22](assets/2012-30946-page97.pdf)
 
 [Aqicn.org](http://aqicn.org) has real-time AQI data for reference from around the world. New York State provides real-time the AQI data for Rochester New York, available [here](http://aqicn.org/city/usa/newyork/rochester/).
+
+## Meta
+
+### License
+
+This repository is released under the [MIT](./LICENSE) license. Commercial licenses are also available from MCCI Corporation.
+
+### Support Open Source Hardware and Software
+
+MCCI invests time and resources providing this open source code, please support MCCI and open-source hardware by purchasing products from MCCI, Adafruit and other open-source hardware/software vendors!
+
+For information about MCCI's products, please visit [store.mcci.com](https://store.mcci.com/).
+
+### Trademarks
+
+MCCI and MCCI Catena are registered trademarks of MCCI Corporation. LoRaWAN is a registered trademark of the LoRa Alliance. LoRa is a registered trademark of Semtech Corporation. All other marks are the property of their respective owners.

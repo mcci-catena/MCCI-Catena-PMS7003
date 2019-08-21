@@ -1,5 +1,8 @@
 # Understanding MCCI Catena data sent on port 1 format 0x20
 
+<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Overall Message Format](#overall-message-format)
@@ -21,10 +24,12 @@
 - [Node-RED Decoding Script](#node-red-decoding-script)
 
 <!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
 ## Overall Message Format
 
-Port 1 format 0x20 uplink messages are sent by Catena4630-pms7003-lora and related sketches. As demos, we use the discriminator byte in the same way as many of the sketches in the Catena-Sketches colletion..
+Port 1 format 0x20 uplink messages are sent by Catena4630-pms7003-lora and related sketches. As demos, we use the discriminator byte in the same way as many of the sketches in the Catena-Sketches collection.
 
 Each message has the following layout.
 
@@ -302,14 +307,14 @@ Vbat 2 Vsys 3.3 Vbus 4.9 Boot 2a Env 30 1017.1 60 Pm 100 200 300 Dust 1000 2000 
 
 The repository contains a generic script that decodes messages in this format, for [The Things Network console](https://console.thethingsnetwork.org).
 
-You can get the latest version on github:
+You can get the latest version on GitHub:
 
 - in raw form: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/master/extra/catena-message-port1-30-decoder-ttn.js
 - or view it: https://github.com/mcci-catena/MCCI-Catena-PMS7003/blob/master/extra/catena-message-port1-30-decoder-ttn.js
 
 ## Node-RED Decoding Script
 
-A Node-RED script to decode this data is part of this repository. You can download the latest version from github:
+A Node-RED script to decode this data is part of this repository. You can download the latest version from GitHub:
 
-- in raw form: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/master/extra/catena-message-port1-30-decoder-node-red.js
-- or view it: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/blob/master/extra/catena-message-port1-30-decoder-node-red.js
+- in raw form: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/master/extra/catena-message-port1-20-decoder-node-red.js
+- or view it: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/blob/master/extra/catena-message-port1-20-decoder-node-red.js
