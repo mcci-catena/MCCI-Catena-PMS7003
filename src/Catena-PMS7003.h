@@ -1,6 +1,6 @@
 /*
 
-Module: cPMS7003.h
+Module: Catena-PMS7003.h
 
 Function:
     The PMS7003 library
