@@ -18,7 +18,6 @@ Author:
 
 #pragma once
 
-#include "catena-pms7003-lora-cTimer.h"
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -28,6 +27,7 @@ Author:
 #include <Catena_Log.h>
 #include <Catena_Mx25v8035f.h>
 #include <Catena_PollableInterface.h>
+#include <Catena_Timer.h>
 #include <Catena_TxBuffer.h>
 #include <Adafruit_BME280.h>
 #include <Catena-PMS7003.h>
@@ -287,7 +287,7 @@ private:
     McciCatenaPMS7003::cPMS7003::DustBins<std::uint16_t[kNumMeasurements]> m_Dust;
 
     // uplink time control
-    cTimer              m_UplinkTimer;
+    McciCatena::cTimer  m_UplinkTimer;
     std::uint32_t       m_txCycleSec;
     std::uint32_t       m_txCycleCount;
     std::uint32_t       m_txCycleSec_Permanent;
