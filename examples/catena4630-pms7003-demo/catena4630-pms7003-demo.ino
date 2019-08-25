@@ -19,6 +19,7 @@ Author:
 #include <Catena_Log.h>
 #include <Catena_Mx25v8035f.h>
 #include <Catena_PollableInterface.h>
+#include <Catena_Timer.h>
 #include <Adafruit_BME280.h>
 #include <Catena-PMS7003.h>
 #include <Catena-PMS7003Hal-4630.h>
@@ -32,104 +33,6 @@ Author:
 
 extern McciCatena::Catena gCatena;
 
-/****************************************************************************\
-|
-|   A simple timer -- this uses cPollableObject because it's easier
-|
-\****************************************************************************/
-
-class cTimer : public McciCatena::cPollableObject
-    {
-public:
-    // constructor
-    cTimer() {}
-
-    // neither copyable nor movable
-    cTimer(const cTimer&) = delete;
-    cTimer& operator=(const cTimer&) = delete;
-    cTimer(const cTimer&&) = delete;
-    cTimer& operator=(const cTimer&&) = delete;
-
-    // initialze to fire every nMillis
-    bool begin(std::uint32_t nMillis);
-
-    // stop operation
-    void end();
-
-    // poll function (updates data)
-    virtual void poll() override;
-
-    bool isready();
-    std::uint32_t readTicks();
-    std::uint32_t peekTicks() const;
-
-    void debugDisplay() const
-        {
-        Serial.print("time="); Serial.print(this->m_time);
-        Serial.print(" interval="); Serial.print(this->m_interval);
-        Serial.print(" events="); Serial.print(this->m_events);
-        Serial.print(" overrun="); Serial.println(this->m_overrun);
-        }
-
-private:
-    std::uint32_t   m_time;
-    std::uint32_t   m_interval;
-    std::uint32_t   m_events;
-    std::uint32_t   m_overrun;
-    };
-
-bool cTimer::begin(std::uint32_t nMillis)
-    {
-    this->m_interval = nMillis;
-    this->m_time = millis();
-    this->m_events = 0;
-
-    // set up for polling.
-    gCatena.registerObject(this);
-
-    return true;
-    }
-
-void cTimer::poll() /* override */
-    {
-    auto const tNow = millis();
-
-    if (tNow - this->m_time >= this->m_interval)
-        {
-        this->m_time += this->m_interval;
-        ++this->m_events;
-
-        /* if this->m_time is now in the future, we're done */
-        if (std::int32_t(tNow - this->m_time) < std::int32_t(this->m_interval))
-            return;
-
-        // rarely, we need to do arithmetic. time and events are in sync.
-        // arrange for m_time to be greater than tNow, and adjust m_events
-        // accordingly.
-        std::uint32_t const tDiff = tNow - this->m_time;
-        std::uint32_t const nTicks = tDiff / this->m_interval;
-        this->m_events += nTicks;
-        this->m_time += nTicks * this->m_interval;
-        this->m_overrun += nTicks;
-        }
-    }
-
-bool cTimer::isready()
-    {
-    return this->readTicks() != 0;
-    }
-
-std::uint32_t cTimer::readTicks()
-    {
-    auto const result = this->m_events;
-    this->m_events = 0;
-    return result;
-    }
-
-std::uint32_t cTimer::peekTicks() const
-    {
-    return this->m_events;
-    }
 
 /****************************************************************************\
 |
