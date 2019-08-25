@@ -16,16 +16,18 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 - [Namespace](#namespace)
 - [Instance Objects](#instance-objects)
 	- [HAL instance object](#hal-instance-object)
-	- [cPMS7003 instance objece](#cpms7003-instance-objece)
+	- [cPMS7003 instance object](#cpms7003-instance-object)
 - [Key classes](#key-classes)
 	- [`cPMS7003Hal`](#cpms7003hal)
 	- [`cPMS7003Hal_4630`](#cpms7003hal_4630)
 	- [`cPMS7003`](#cpms7003)
-	- [cPMS7003::Measurements<>](#cpms7003measurements)
+	- [`cPMS7003::Measurements<>`](#cpms7003measurements)
 - [Integration with Catena 4630](#integration-with-catena-4630)
 - [Example Sketches](#example-sketches)
 - [Additional code for dashboards](#additional-code-for-dashboards)
 - [Useful references](#useful-references)
+- [Board Support Dependencies](#board-support-dependencies)
+- [Other Libraries and Versions Required](#other-libraries-and-versions-required)
 - [Meta](#meta)
 	- [License](#license)
 	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
@@ -82,11 +84,11 @@ To use this library, you must create two instance object.
 
 ### HAL instance object
 
-You must create a HAL instance object to use this library. *Don't* try to instantiate an object of type `cPMS7003Hal`. It's an abstract class and can't be instantiated. Instead, instantiate an object from a concreate HAL classs such as `cPMS7003Hal_4630`. The rules for instantiation are set by the concrete class; in this case, you need two arguments. The first argument is an lv that resolves to a `McciCatena::Catena4630` object. The second argument gives the initial value for the debug flags (see the [`debugmask` command](#debugmask)).
+You must create a HAL instance object to use this library. *Don't* try to instantiate an object of type `cPMS7003Hal`. It's an abstract class and can't be instantiated. Instead, instantiate an object from a concrete HAL class such as `cPMS7003Hal_4630`. The rules for instantiation are set by the concrete class; in this case, you need two arguments. The first argument is an lv that resolves to a `McciCatena::Catena4630` object. The second argument gives the initial value for the debug flags (see the [`debugmask` command](#debugmask)).
 
-### cPMS7003 instance objece
+### cPMS7003 instance object
 
-You must create a PMS7003 instance object. This takces the form:
+You must create a PMS7003 instance object. For example:
 
 ```c++
 cPMS7003 gPms7003 { Serial2, gPmsHal };
@@ -117,22 +119,22 @@ Features of this FSM:
 
 1. The PMS7003 is initially powered down.
 2. When a wake event is received from the application, the FSM powers up the PMS7003 and takes it through a wakeup sequence. Data received while in the warmup state is indicated up to the client, but tagged as warming up.
-3. Once the library has finished the warmup seqeunce, it allows the client to operat the PMS7003 in "normal" mode (where the PMS7003 sends data spontaneously as it sees fit), or in "passive" mode (where the application must request a measurement).
+3. Once the library has finished the warmup sequence, it allows the client to operate the PMS7003 in "normal" mode (where the PMS7003 sends data spontaneously as it sees fit), or in "passive" mode (where the application must request a measurement).
 4. At any time, the client may power down or reset the PMS7003.
-5. While the PMS7003 is active, the client may select a low-power sleep mode, eithe via a hardware sleep (using the SET pin) or a software sleep (using a command).
+5. While the PMS7003 is active, the client may select a low-power sleep mode, either via a hardware sleep (using the SET pin) or a software sleep (using a command).
 6. Waking up the PMS7003 from sleep is the same as starting from power off; it must go through a warmup cycle. However, the timing for waking from sleep is much more deterministic. Starting from power off takes anywhere from 5 to 45 seconds (empirically determined); starting from sleep takes about 3 seconds to the first warmup message, and about 12 seconds to full operation.
 
-### cPMS7003::Measurements<>
+### `cPMS7003::Measurements<>`
 
 The PMS7003 sends three groups of measurements in each data set.
 
-1. It sends atmosphereric particulate matter concentrations binned by particle size: 1.0 micron, 2.5 micron and 10 micron particles. The units of measurement are &mu;grams per cubic meter of air.
+1. It sends atmospheric particulate matter concentrations binned by particle size: 1.0 micron, 2.5 micron and 10 micron particles. The units of measurement are &mu;grams per cubic meter of air.
 
 2. It sends dust concentrations, also binned by particle size: 0.3, 0.5, 1.0, 2.5, 5 and 10 microns. The units of measurement are particle counts per deciliter of air.
 
 3. It sends "factory" concentrations of particulate matter, binned by particle size as for atmospheric concentrations. These readings are typically only used for factory calibration and test.
 
-The library defines structure templates for convenying this information. The template `cPMS7003::PmBins<typename NumericType>` represents the three bins in a single structure with fields `m1p0` for PM1.0 concentrations, `m2p5` for PM2.5 concentrations, and `m10` for PM10 concentrations. The library reports data using `cPMS7003::PmBins<std::uint16_t>`.
+The library defines structure templates for conveying this information. The template `cPMS7003::PmBins<typename NumericType>` represents the three bins in a single structure with fields `m1p0` for PM1.0 concentrations, `m2p5` for PM2.5 concentrations, and `m10` for PM10 concentrations. The library reports data using `cPMS7003::PmBins<std::uint16_t>`.
 
 > If you are not familiar with templates, think of them as C++-aware macros. For example, the template for `PmBins<>` is:
 >
@@ -146,7 +148,7 @@ The library defines structure templates for convenying this information. The tem
 >     };
 > ```
 >
-> `T` is a parameter, which must be a type. When we write `PmBins<uint16_t>`, the compiler generates a structure by sustituting `<uint16_t>` for `T`. So we get:
+> `T` is a parameter, which must be a type. When we write `PmBins<uint16_t>`, the compiler generates a structure by substituting `<uint16_t>` for `T`. So we get:
 >
 > ```c++
 > struct
@@ -157,11 +159,11 @@ The library defines structure templates for convenying this information. The tem
 >     };
 > ```
 >
-> We could do this with C preprocessor macros, but templates allow the compiler to understand what's intendend, in a way that's not possible with C macros.
+> We could do this with C preprocessor macros, but templates allow the compiler to understand what's intended, in a way that's not possible with C macros.
 
-Two other templates are defined by the libarary. `cPMS7003::DustBins<>` similarly creates a structure representing the dust bins. The fields are named `m0p3`, `m0p5`, `m1p0`, `m2p5`, `m5`, and `m10`, corresponding to 0.3, 0.5, 1.0, 2.5, 5, and 10 micron particles.
+Two other templates are defined by the library. `cPMS7003::DustBins<>` similarly creates a structure representing the dust bins. The fields are named `m0p3`, `m0p5`, `m1p0`, `m2p5`, `m5`, and `m10`, corresponding to 0.3, 0.5, 1.0, 2.5, 5, and 10 micron particles.
 
-The measurements (atmospheric, dust, and factory) are combined in a large structure, `cPMS7003::Measurements<>`. This contains the subsfields `atm` and `cf1` (both `PmBins`), representing atmospheric and factory particulate matter measurements, and `dust` (an instance of `DustBins`).
+The measurements (atmospheric, dust, and factory) are combined in a large structure, `cPMS7003::Measurements<>`. This contains the subfields `atm` and `cf1` (both `PmBins`), representing atmospheric and factory particulate matter measurements, and `dust` (an instance of `DustBins`).
 
 Using templates, it's easy to generate a measurement structure using `float` or `uint32_t`; for each entry; just write `cPMS7003::Measurements<float>`,
 `cPMS7003::Measurements<uint32_t>`, etc.
@@ -186,13 +188,13 @@ The `catena4630-pm7003-lora` example is a completely worked remote sensor sketch
 
 ## Additional code for dashboards
 
-Check the [extra](./extra) directory for JavaScript code for calculating AQI, decoding data from LoRaWAN messages, and Node-RED and Grafana assets for presenting the data using the [docker-ttn-dashboard](https://github.com/mcci-catena/docker-ttn-dashboard).
+Check the [extra](./extra) directory for JavaScript code for calculating AQI, decoding data from LoRaWAN messages, and Node-RED and Grafana assets for presenting the data using the [`docker-ttn-dashboard`](https://github.com/mcci-catena/docker-ttn-dashboard).
 
 ## Useful references
 
 The US laws defining PM2.5 can be found [here](https://www.law.cornell.edu/cfr/text/40/50.13).
 
-See [acicn.org psm5003-7003](http://aqicn.org/sensor/pms5003-7003/) for some useful information and guidance on how to use the PMS7003 sensor for outdoor air quality measurments.
+See [acicn.org psm5003-7003](http://aqicn.org/sensor/pms5003-7003/) for some useful information and guidance on how to use the PMS7003 sensor for outdoor air quality measurements.
 
 For information on converting PM2.5 and PM10 to AQI numbers, this website has good background: [How is the Air Quality Index AQI calculated?](https://stimulatedemissions.wordpress.com/2013/04/10/how-is-the-air-quality-index-aqi-calculated/).  However, many of the links in that article are broken. The US EPA site references are not current.
 
@@ -205,6 +207,27 @@ The EPA data can be found in the Internet Archives [here](http://web.archive.org
 The relevant (and authoritative) rule from the [Federal Register](https://www.govinfo.gov/content/pkg/FR-2013-01-15/pdf/2012-30946.pdf) is also in this repo, [page 97, accessed 2019-07-22](assets/2012-30946-page97.pdf)
 
 [Aqicn.org](http://aqicn.org) has real-time AQI data for reference from around the world. New York State provides real-time the AQI data for Rochester New York, available [here](http://aqicn.org/city/usa/newyork/rochester/).
+
+## Board Support Dependencies
+
+This library has been tested with MCCI's STM32L0 BSP v2.5.0 and the Catena 4630.
+
+## Other Libraries and Versions Required
+
+| Library | Recommended Version | Minimum Version | Comments |
+|---------|:-------:|:----:|----------|
+| [`Catena-Arduino-Platform`](https://github.com/mcci-catena/Catena-Arduino-Platform) | HEAD | 0.17.0.12 | HEAD has significant analog input improvements; 0.17.0.12 also has `cTimer`.
+| [`arduino-lmic`](https://github.com/mcci-catena/arduino-lmic) | HEAD | 2.3.2 | Earlier versions will fail to compile due to missing `lmic_pinmap::rxtx_rx_polarity` and `lmic_pinmap::spi_freq` fields. Use of HEAD is strongly recommended as it has important improvements for LoRaWAN compliance. |
+| [`arduino-lorawan`](https://github.com/mcci-catena/arduino-lorawan) | HEAD | 0.5.3.50 | Needed in order to support the Murata module used in the Catena 4551, and for bug fixes in LoRaWAN::begin handling. |
+| [`catena-mcciadk`](https://github.com/mcci-catena/Catena-mcciadk) | 0.2.1 | 0.1.2 | Needed for miscellaneous definitions |
+
+The example sketches use additional libraries.
+
+| Library | Recommended Version | Minimum Version | Comments |
+|---------|:-------:|:----:|----------|
+| [`mcci-catena/Adafruit_BME280_Library`](https://github.com/mcci-catena/Adafruit_BME280_Library.git) | HEAD | `3dafbe1c1e9` | Has bug fixes from MCCI for proper operation.
+| [`mcci-catena/Adafruit_Sensor`](https://github.com/mcci-catena/Adafruit_Sensor.git) | HEAD | 1.0.2 | MCCI version is just a snapshot for curation.
+<!-- | [`mcci-catena/Adafruit_FRAM_I2C`](https://github.com/mcci-catena/Adafruit_FRAM_I2C.git) | HEAD | | -->
 
 ## Meta
 
