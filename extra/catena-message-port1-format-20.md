@@ -129,10 +129,10 @@ For example, if the transmitted message contains 0x1A, 0xAB, the equivalent floa
 
 Floating point mavens will immediately recognize:
 
-* There is no sign bit; all numbers are positive.
-* Numbers do not need to be normalized (although in practice they always are).
-* The format is somewhat wasteful, because it explicitly transmits the most-significant bit of the fraction. (Most binary floating-point formats assume that `f` is is normalized, which means by definition that the exponent `b` is adjusted and `f` is shifted left until the most-significant bit of `f` is one. Most formats then choose to delete the most-significant bit from the encoding. If we were to do that, we would insist that the actual value of `f` be in the range 2048.. 4095, and then transmit only `f - 2048`, saving a bit. However, this complicated the handling of gradual underflow; see next point.)
-* Gradual underflow at the bottom of the range is automatic and simple with this encoding; the more sophisticated schemes need extra logic (and extra testing) in order to provide the same feature.
+- There is no sign bit; all numbers are positive.
+- Numbers do not need to be normalized (although in practice they always are).
+- The format is somewhat wasteful, because it explicitly transmits the most-significant bit of the fraction. (Most binary floating-point formats assume that `f` is is normalized, which means by definition that the exponent `b` is adjusted and `f` is shifted left until the most-significant bit of `f` is one. Most formats then choose to delete the most-significant bit from the encoding. If we were to do that, we would insist that the actual value of `f` be in the range 2048.. 4095, and then transmit only `f - 2048`, saving a bit. However, this complicated the handling of gradual underflow; see next point.)
+- Gradual underflow at the bottom of the range is automatic and simple with this encoding; the more sophisticated schemes need extra logic (and extra testing) in order to provide the same feature.
 
 ## Test Vectors
 
@@ -309,12 +309,12 @@ The repository contains a generic script that decodes messages in this format, f
 
 You can get the latest version on GitHub:
 
-- in raw form: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/master/extra/catena-message-port1-30-decoder-ttn.js
-- or view it: https://github.com/mcci-catena/MCCI-Catena-PMS7003/blob/master/extra/catena-message-port1-30-decoder-ttn.js
+- in [raw form](https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/master/extra/catena-message-port1-30-decoder-ttn.js)
+- or [view it](https://github.com/mcci-catena/MCCI-Catena-PMS7003/blob/master/extra/catena-message-port1-30-decoder-ttn.js)
 
 ## Node-RED Decoding Script
 
 A Node-RED script to decode this data is part of this repository. You can download the latest version from GitHub:
 
-- in raw form: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/master/extra/catena-message-port1-20-decoder-node-red.js
-- or view it: https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/blob/master/extra/catena-message-port1-20-decoder-node-red.js
+- in [raw form](https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/master/extra/catena-message-port1-20-decoder-node-red.js)
+- or [view it](https://raw.githubusercontent.com/mcci-catena/MCCI-Catena-PMS7003/blob/master/extra/catena-message-port1-20-decoder-node-red.js)
