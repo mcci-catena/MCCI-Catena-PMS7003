@@ -1,6 +1,6 @@
 /*
 
-Module: catena-pms7003-demo.ino
+Module: catena-pms7003-revB-demo.ino
 
 Function:
     Basic sketch for exploring the function of the Catena4630 and PMS7003.
@@ -20,7 +20,7 @@ Author:
 #include <Catena_Mx25v8035f.h>
 #include <Catena_PollableInterface.h>
 #include <Catena_Timer.h>
-#include <Adafruit_BME280.h>
+#include <Catena-SHT3x.h>
 #include <Catena-PMS7003.h>
 #include <Catena-PMS7003Hal-4630.h>
 #include <mcciadk_baselib.h>
@@ -42,6 +42,7 @@ extern McciCatena::Catena gCatena;
 
 using namespace McciCatena;
 using namespace McciCatenaPMS7003;
+using namespace McciCatenaSht3x;
 
 Catena gCatena;
 Catena::LoRaWAN gLoRaWAN;
@@ -58,8 +59,8 @@ SPIClass gSPI2(
 Catena_Mx25v8035f gFlash;
 bool gfFlash;
 
-//  The BME280
-Adafruit_BME280 gBme280;
+//  The SHT3x is on the default bus, at the default address.
+cSHT3x gSht3x(Wire);
 
 cPMS7003Hal_4630 gPmsHal 
     { 
@@ -199,7 +200,8 @@ void setup_radio()
 void setup_sensors()
     {
     Wire.begin();
-    gBme280.begin();
+    if (! gSht3x.begin())
+        gCatena.SafePrintf("SHT31 failed to initialize\n");
     }
 
 void setup_pms7003()

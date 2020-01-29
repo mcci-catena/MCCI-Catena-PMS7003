@@ -1,28 +1,11 @@
-# Example Sketch: Catena4630-pm7003-demo
+# Example Sketch: Catena4630-pm7003-revB demo
 
-The `catena4630-pm7003-demo` example sketch allows interactive use of the PMS7003.
+The `catena4630-pm7003-revB-demo` example sketch allows interactive use of the PMS7003 on a rev B Catena 4630 board.
 
 <!-- markdownlint-disable MD033 -->
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
-<!-- TOC depthFrom:2 updateOnSave:true -->
-
-- [Functions performed by this sketch](#functions-performed-by-this-sketch)
-- [Commands](#commands)
-	- [`begin`](#begin)
-	- [`debugmask`](#debugmask)
-	- [`end`](#end)
-	- [`hwsleep`](#hwsleep)
-	- [`measure`](#measure)
-	- [`normal`](#normal)
-	- [`off`](#off)
-	- [`passive`](#passive)
-	- [`reset`](#reset)
-	- [`sleep`](#sleep)
-	- [`stats`](#stats)
-	- [`wake`](#wake)
-
-<!-- /TOC -->
+<!-- TOC depthFrom:2 updateOnSave:true -->autoauto- [Functions performed by this sketch](#functions-performed-by-this-sketch)auto- [Commands](#commands)auto    - [`begin`](#begin)auto    - [`debugmask`](#debugmask)auto    - [`end`](#end)auto    - [`hwsleep`](#hwsleep)auto    - [`measure`](#measure)auto    - [`normal`](#normal)auto    - [`off`](#off)auto    - [`passive`](#passive)auto    - [`reset`](#reset)auto    - [`sleep`](#sleep)auto    - [`stats`](#stats)auto    - [`wake`](#wake)autoauto<!-- /TOC -->
 <!-- markdownlint-restore -->
 <!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
@@ -30,13 +13,13 @@ The `catena4630-pm7003-demo` example sketch allows interactive use of the PMS700
 
 This sketch has the following features.
 
-- During startup, the sketch initializes the PMS7003 and sets up a commmand line environment allowing you to experiment with various features of the PMS7003 driver.
+- During startup, the sketch initializes the PMS7003 and sets up a command=line environment allowing you to experiment with various features of the PMS7003 driver.
 
-- The sketch also initializes the LoRaWAN radio and the BME200 sensors to put them in a low-power state.
+- The sketch also initializes the LoRaWAN radio and the temperature sensors to put them in a low-power state.
 
 - During operation, the sketch monitors the PMS7003 and displays the data received from the PMS7003 on the serial monitor.
 
-- The sketch uses the [Catena Arduino Platform](https://github.com/mcci-catena/Catena-Arduino-Platform.git), and therefore the basic provisioning commands from the platform are always availble while the sketch is running. This also allows user commands to be added if desired.
+- The sketch uses the [Catena Arduino Platform](https://github.com/mcci-catena/Catena-Arduino-Platform.git), and therefore the basic provisioning commands from the platform are always available while the sketch is running. This also allows user commands to be added if desired.
 
 - The `McciCatena::cPollableObject` paradigm is used to simplify the coordination of the activities described above.
 
@@ -81,7 +64,7 @@ In passive mode, the `measure` command triggers a single measurement request. Th
 
 ### `normal`
 
-Switch the sensor to normal mode. In normal mode, the PMS7003 sends measurments periodicaly. (The datasheet claims every 2 seconds, but on our sensors it seems to be every 0.8 seconds.)
+Switch the sensor to normal mode. In normal mode, the PMS7003 sends measurements periodically. (The datasheet claims every 2 seconds, but on our sensors it seems to be every 0.8 seconds.)
 
 ### `off`
 
@@ -91,7 +74,7 @@ Turn the sensor off. Use the [`wake`](#wake) command to power it up.
 
 Put the sensor into passive mode. In passive mode, the sensor keeps the fan on, but doesn't send measurements.
 
-If the `passive` command is entered while the sensor is warming up, the library deleays switching to passive mode until the sensor is awake.
+If the `passive` command is entered while the sensor is warming up, the library delays switching to passive mode until the sensor is awake.
 
 ### `reset`
 
@@ -99,7 +82,7 @@ Reset the PMS7003 using the hardware reset pin. This requires a warmup for recov
 
 ### `sleep`
 
-Put the sensor into sleep mode using a software command. This saves the power from driving the `SET` pin low, but it's not clear whether the PMS7003 power is as low duing software sleep as during hardware sleep.
+Put the sensor into sleep mode using a software command. This saves the power from driving the `SET` pin low, but it's not clear whether the PMS7003 power is as low during software sleep as during hardware sleep.
 
 ### `stats`
 
