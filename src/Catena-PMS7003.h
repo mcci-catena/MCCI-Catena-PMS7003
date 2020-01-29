@@ -84,7 +84,7 @@ public:
         stFinal,        // this name must be present, it's the terminal state.
         };
 
-    static constexpr char *getStateName(State s)
+    static constexpr const char *getStateName(State s)
         {
         switch (s)
             {
