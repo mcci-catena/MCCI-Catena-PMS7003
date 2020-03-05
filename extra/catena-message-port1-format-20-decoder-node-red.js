@@ -241,7 +241,7 @@ function Decoder(bytes, port) {
         return null;
 
     var uFormat = bytes[0];
-    if (! (uFormat === 0x20))
+    if (! (uFormat === 0x20 || uFormat == 0x21))
         return null;
 
     // an object to help us parse.
@@ -273,7 +273,8 @@ function Decoder(bytes, port) {
     if (flags & 0x10) {
         // we have temp, pressure, RH
         decoded.tempC = DecodeI16(Parse) / 256;
-        decoded.p = DecodeU16(Parse) * 4 / 100.0;
+        if (uFormat === 0x20)
+            decoded.p = DecodeU16(Parse) * 4 / 100.0;
         decoded.rh = DecodeU16(Parse) * 100 / 65535.0;
         decoded.tDewC = dewpoint(decoded.tempC, decoded.rh);
         var tHeat = CalculateHeatIndex(decoded.tempC * 1.8 + 32, decoded.rh);

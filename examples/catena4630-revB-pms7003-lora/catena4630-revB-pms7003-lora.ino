@@ -61,7 +61,8 @@ Catena_Mx25v8035f gFlash;
 bool gfFlash;
 
 //  The Temperature/humidity sensor
-cSHT3x gTempRh;
+cSHT3x gTempRh { Wire };
+
 // true if SHT3x is running.
 bool gfTempRh;
 
@@ -126,6 +127,9 @@ void setup_platform()
     {
     gCatena.begin();
 
+    gLed.begin();
+    gLed.Set(McciCatena::LedPattern::FastFlash);
+
     // if running unattended, don't wait for USB connect.
     if (! (gCatena.GetOperatingFlags() &
             static_cast<uint32_t>(gCatena.OPERATING_FLAGS::fUnattended)))
@@ -134,6 +138,8 @@ void setup_platform()
                     /* wait for USB attach */
                     yield();
             }
+
+    gLed.Set(McciCatena::LedPattern::FiftyFiftySlow);
     }
 
 static constexpr const char *filebasename(const char *s)

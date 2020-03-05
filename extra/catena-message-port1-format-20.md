@@ -1,41 +1,23 @@
-# Understanding MCCI Catena data sent on port 1 format 0x20
+# Understanding MCCI Catena data sent on port 1 format 0x20/0x21
 
 <!-- markdownlint-disable MD033 -->
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
-<!-- TOC depthFrom:2 updateOnSave:true -->
-
-- [Overall Message Format](#overall-message-format)
-- [Bitmap fields and associated fields](#bitmap-fields-and-associated-fields)
-	- [Battery Voltage (field 0)](#battery-voltage-field-0)
-	- [System Voltage (field 1)](#system-voltage-field-1)
-	- [Bus Voltage (field 2)](#bus-voltage-field-2)
-	- [Boot counter (field 3)](#boot-counter-field-3)
-	- [Environmental Readings (field 4)](#environmental-readings-field-4)
-	- [Particle Concentrations (field 5)](#particle-concentrations-field-5)
-- [Data Formats](#data-formats)
-	- [uint16](#uint16)
-	- [int16](#int16)
-	- [uint8](#uint8)
-	- [uflt16](#uflt16)
-- [Test Vectors](#test-vectors)
-	- [Test vector generator](#test-vector-generator)
-- [The Things Network Console decoding script](#the-things-network-console-decoding-script)
-- [Node-RED Decoding Script](#node-red-decoding-script)
-
-<!-- /TOC -->
+<!-- TOC depthFrom:2 updateOnSave:true -->autoauto- [Overall Message Format](#overall-message-format)auto- [Bitmap fields and associated fields](#bitmap-fields-and-associated-fields)auto    - [Battery Voltage (field 0)](#battery-voltage-field-0)auto    - [System Voltage (field 1)](#system-voltage-field-1)auto    - [Bus Voltage (field 2)](#bus-voltage-field-2)auto    - [Boot counter (field 3)](#boot-counter-field-3)auto    - [Environmental Readings (field 4)](#environmental-readings-field-4)auto    - [Particle Concentrations (field 5)](#particle-concentrations-field-5)auto- [Data Formats](#data-formats)auto    - [uint16](#uint16)auto    - [int16](#int16)auto    - [uint8](#uint8)auto    - [uflt16](#uflt16)auto- [Test Vectors](#test-vectors)auto    - [Test vector generator](#test-vector-generator)auto- [The Things Network Console decoding script](#the-things-network-console-decoding-script)auto- [Node-RED Decoding Script](#node-red-decoding-script)autoauto<!-- /TOC -->
 <!-- markdownlint-restore -->
 <!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
 ## Overall Message Format
 
-Port 1 format 0x20 uplink messages are sent by Catena4630-pms7003-lora and related sketches. As demos, we use the discriminator byte in the same way as many of the sketches in the Catena-Sketches collection.
+Port 1 format 0x20 and 0x21 uplink messages are sent by Catena4630-pms7003-lora and related sketches. As demos, we use the discriminator byte in the same way as many of the sketches in the Catena-Sketches collection.
+
+Format 0x20 and 0x21 are practically identical, except that 0x20 transmits barometric pressure, but 0x21 does not.
 
 Each message has the following layout.
 
 byte | description
 :---:|:---
-0    | magic number 0x20
+0    | magic number 0x20 or 0x21
 1    | bitmap encoding the fields that follow
 2..n | data bytes; use bitmap to map these bytes onto fields.
 
@@ -51,7 +33,7 @@ Bitmap bit | Length of corresponding field (bytes) | Data format |Description
 1 | 2 | [int16](#int16) | [System voltage](#sys-voltage-field-1)
 2 | 2 | [int16](#int16) | [Bus voltage](#bus-voltage-field-2)
 3 | 1 | [uint8](#uint8) | [Boot counter](#boot-counter-field-3)
-4 | 6 | [int16](#int16), [uint16](#uint16), [uint16](#uint16) | [Temperature, Pressure, Humidity](environmental-readings-field-4)
+4 | 6 | [int16](#int16), [uint16](#uint16), [uint16](#uint16) | [Temperature, Pressure (if 0x20), Humidity](environmental-readings-field-4)
 5 | 14 | 7 times [uflt16](#uflt16) | [Particle Concentrations](#particle-concentrations-field-5)
 6 | n/a | _reserved_ | Reserved for future use.
 7 | n/a | _reserved_ | Reserved for future use.
@@ -80,7 +62,7 @@ Field 4, if present, has three environmental readings as four bytes of data.
 
 - The first two bytes are a [`int16`](#int16) representing the temperature (divide by 256 to get degrees Celsius).
 
-- The next two bytes are a [`uint16`](#uint16) representing the barometric pressure (divide by 25 to get millibars). This is the station pressure, not the sea-level pressure.
+- If the format is 0x20, the next two bytes are a [`uint16`](#uint16) representing the barometric pressure (divide by 25 to get millibars). This is the station pressure, not the sea-level pressure. (If the format is 0x21, these two bytes are omitted).
 
 - The next two bytes are a [`uint16`](#uint16) representing the relative humidity (divide by 65535 to get percent). This field can represent humidity from 0% to 100%, in steps of roughly 0.001529%.
 
