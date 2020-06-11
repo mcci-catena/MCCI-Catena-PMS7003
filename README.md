@@ -15,13 +15,13 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 - [Library and Board Dependencies](#library-and-board-dependencies)
 - [Namespace](#namespace)
 - [Instance Objects](#instance-objects)
-	- [HAL instance object](#hal-instance-object)
-	- [cPMS7003 instance object](#cpms7003-instance-object)
+        - [HAL instance object](#hal-instance-object)
+        - [cPMS7003 instance object](#cpms7003-instance-object)
 - [Key classes](#key-classes)
-	- [`cPMS7003Hal`](#cpms7003hal)
-	- [`cPMS7003Hal_4630`](#cpms7003hal_4630)
-	- [`cPMS7003`](#cpms7003)
-	- [`cPMS7003::Measurements<>`](#cpms7003measurements)
+        - [`cPMS7003Hal`](#cpms7003hal)
+        - [`cPMS7003Hal_4630`](#cpms7003hal_4630)
+        - [`cPMS7003`](#cpms7003)
+        - [`cPMS7003::Measurements<>`](#cpms7003measurements)
 - [Integration with Catena 4630](#integration-with-catena-4630)
 - [Example Sketches](#example-sketches)
 - [Additional code for dashboards](#additional-code-for-dashboards)
@@ -29,9 +29,9 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 - [Board Support Dependencies](#board-support-dependencies)
 - [Other Libraries and Versions Required](#other-libraries-and-versions-required)
 - [Meta](#meta)
-	- [License](#license)
-	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
-	- [Trademarks](#trademarks)
+        - [License](#license)
+        - [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
+        - [Trademarks](#trademarks)
 
 <!-- /TOC -->
 <!-- markdownlint-restore -->
@@ -113,7 +113,7 @@ It models the device with an FSM shown in the next figure.
 <!--
 See source in assets/PMS7003_state.plantuml
 -->
-[![**FSM for PMS7003 low-level driver**](http://www.plantuml.com/plantuml/png/TLJVRzis47uM_ufxQe4rjfpjOPYn5WqS3-iGfu7jhi2MOM6aaqrC93N-Y6eiszy-YfALIna_YRhxxllkE_vuRnqtpikQvQyPM-dIrpZFRbQRxsUpx_uCIOVJfkOgGjXFNXLEQ3LdsKqN_BIw0eCL6bG5WjNUX4-b3HG30rHMJbd65hev6B7Rkr2vGGHU55esN1s4si7LXyNoUhE4IjGXurYsTwwnytcUxuJR-_jfmEQoACIau0uLpnVnCxamfHTAJq8hBeZAe7FXtLwR8B95OmwmqjhW6QmMYm-mqARHXdVjPx_u-W3Vpiv_OEnQExJKZv1yXnQ4WlNoOdMvdCeIk47OeS9GZYNS7w3XrdMjkxsmVTz2ESqojqUmQ1xG07VG-GWkshOTPnYz77_EWAiITeRVt_Tao3A3rjUH-zFwoauPUvqpjXSb0ih67Q14MnZHT3OiOxz_ymTC9k_0kezLnLZy384r_ktHkXlTelceO0xuy9d_XOozb5BE77BOUgD0A_YrB6yLG3mQS3wRIGjEI3IG5ezY5btKs7P0naYev-RMOc0pNPIGG-Ic9P5nxPKACtXYX1owtDrwkLbkxs0l9hzztSobReaNvqqq0hggpb8hBzMEWoIohrx1VzNoYt2d2i8EF8VtQ1QlpkZZ7vOzRTLdRgHl6CkEox7hw56jqDfu1j_2Z81eSPIynlQIEnv4ISsFmMMORmvltep1XEHQ6ydhqoJltWQMq211aWRlnYsWa9xvvtPJ8_Rz3Ui44wCBMKRGov0RRgrum0sgyWWSGa6IgYHjrRgbY8adKnilmQrwAZWFZAGdGgbAi96aa2N576qGgzilbrfXptHKDX7LoOKQSlyo6gHYROZwg4Onr44Ybiw9y3LzCXAcs6U3Fi4RnCbveRlHHoZqzFvJK7e0XbkLGcb_A-JMct6GmoyvVYzFGCLS7422V6OjzP_A3iH5ZTo0x3Co1Czk5KIvOp3g9IJfpEdrUtmStX3j7Sl-PMnuEPBtDQwIRFeAFeHtBB0UdwFteJylw_y1)](https://www.plantuml.com/plantuml/svg/TLJVRzis47uM_ufxQe4rjfpjOPYn5WqS3-iGfu7jhi2MOM6aaqrC93N-Y6eiszy-YfALIna_YRhxxllkE_vuRnqtpikQvQyPM-dIrpZFRbQRxsUpx_uCIOVJfkOgGjXFNXLEQ3LdsKqN_BIw0eCL6bG5WjNUX4-b3HG30rHMJbd65hev6B7Rkr2vGGHU55esN1s4si7LXyNoUhE4IjGXurYsTwwnytcUxuJR-_jfmEQoACIau0uLpnVnCxamfHTAJq8hBeZAe7FXtLwR8B95OmwmqjhW6QmMYm-mqARHXdVjPx_u-W3Vpiv_OEnQExJKZv1yXnQ4WlNoOdMvdCeIk47OeS9GZYNS7w3XrdMjkxsmVTz2ESqojqUmQ1xG07VG-GWkshOTPnYz77_EWAiITeRVt_Tao3A3rjUH-zFwoauPUvqpjXSb0ih67Q14MnZHT3OiOxz_ymTC9k_0kezLnLZy384r_ktHkXlTelceO0xuy9d_XOozb5BE77BOUgD0A_YrB6yLG3mQS3wRIGjEI3IG5ezY5btKs7P0naYev-RMOc0pNPIGG-Ic9P5nxPKACtXYX1owtDrwkLbkxs0l9hzztSobReaNvqqq0hggpb8hBzMEWoIohrx1VzNoYt2d2i8EF8VtQ1QlpkZZ7vOzRTLdRgHl6CkEox7hw56jqDfu1j_2Z81eSPIynlQIEnv4ISsFmMMORmvltep1XEHQ6ydhqoJltWQMq211aWRlnYsWa9xvvtPJ8_Rz3Ui44wCBMKRGov0RRgrum0sgyWWSGa6IgYHjrRgbY8adKnilmQrwAZWFZAGdGgbAi96aa2N576qGgzilbrfXptHKDX7LoOKQSlyo6gHYROZwg4Onr44Ybiw9y3LzCXAcs6U3Fi4RnCbveRlHHoZqzFvJK7e0XbkLGcb_A-JMct6GmoyvVYzFGCLS7422V6OjzP_A3iH5ZTo0x3Co1Czk5KIvOp3g9IJfpEdrUtmStX3j7Sl-PMnuEPBtDQwIRFeAFeHtBB0UdwFteJylw_y1 "Click for SVG version")
+[![**FSM for PMS7003 low-level driver**](http://www.plantuml.com/plantuml/png/TLJVRzis47uM_ufxQe4rjfpjOPYn5WqS3-iGfu7jhi2MOM6aaqrC93N-Y6eiszy-YfALIna_YRhxxllkE_vuRnqtpikQxKM9WB9n1oZH5aOqJcZ5MFwQiPKkVOtpx6Qr-Nus--xFKEHmsjHSnLBsarT5XvwpxAOBVbfTWS4A3Qe2mMflmgVI1eg10IehfonZ2zqSZDZjNQZS808l2YqRhWv2xU3gms9vlLb29UgGSIpREzVO-JpFTyBj_VqqO7DP569IS8UAvulucLoOqWkb9w4L5qHbqBdmRgzD4DcYCGTOQMtm35QBnGTOQDDemxlsirzyVO1lP-S_C7Qj7LhgHqY-Gmj2mNfviRfSJcK9t23iK64ennBk3z1mwxhMtLxOlc-Xd6QPsoDOD0zeW3leV0GNRTkECunUZZzdm5K9EyFlxtioP9b1w-l8_MbzPQUClSuP-_sRFs0oUGVMVQmgnk9d2ApnRu_MtUWMpKS5Sy27p_mlPEobb7BcaCFM6mLQmQzbUQi0uic0yzbCMd12ee6qU1IpwAB6jWCoHa8zDxSM0vlfeeGS8ZSjYOnhhrIm-iG8ENIvk_LoizpUmLvCVlkwcKlT4Y_EcsW4T5MTfLPUgXq7IMHVlOB_gkKNuKuLX1ru3k_HBDwGqSS_B7lQgi_SIDymbXsNOzVHergXjV6elOKP0T7YA7cDxILtF8YIcX-3op3V7Dwy6OC9oRKsajUdITwz3IoXGO8a3TwDMq0XFVFFxQP6xFiRrWacHXUoZA2N8JVSMl606rJb4JY4WYHLITggTKiH4q-cDbw2M_LKS1uOIK-4KfLW8qaXIuevsY1MjrykjSAUwQXi8ggJ2pNa_cKqICNQ4FLHZM0I1rICpYdbQ_fa94ompmTzWZU8a_D2TwEFKEZf_QUWz00Cjog5qlvMoAqtuo27NtByNfw0YhauW0Jvp5hgFvKTY8iQkG7PPsG8djqgY7B7ODHBITAPa-lt-3Yy8TexbltBsF1o9EzhN2NPz1Ly2EzOO3q-H-z3VrxM_mC0)](https://www.plantuml.com/plantuml/svg/TLJVRzis47uM_ufxQe4rjfpjOPYn5WqS3-iGfu7jhi2MOM6aaqrC93N-Y6eiszy-YfALIna_YRhxxllkE_vuRnqtpikQxKM9WB9n1oZH5aOqJcZ5MFwQiPKkVOtpx6Qr-Nus--xFKEHmsjHSnLBsarT5XvwpxAOBVbfTWS4A3Qe2mMflmgVI1eg10IehfonZ2zqSZDZjNQZS808l2YqRhWv2xU3gms9vlLb29UgGSIpREzVO-JpFTyBj_VqqO7DP569IS8UAvulucLoOqWkb9w4L5qHbqBdmRgzD4DcYCGTOQMtm35QBnGTOQDDemxlsirzyVO1lP-S_C7Qj7LhgHqY-Gmj2mNfviRfSJcK9t23iK64ennBk3z1mwxhMtLxOlc-Xd6QPsoDOD0zeW3leV0GNRTkECunUZZzdm5K9EyFlxtioP9b1w-l8_MbzPQUClSuP-_sRFs0oUGVMVQmgnk9d2ApnRu_MtUWMpKS5Sy27p_mlPEobb7BcaCFM6mLQmQzbUQi0uic0yzbCMd12ee6qU1IpwAB6jWCoHa8zDxSM0vlfeeGS8ZSjYOnhhrIm-iG8ENIvk_LoizpUmLvCVlkwcKlT4Y_EcsW4T5MTfLPUgXq7IMHVlOB_gkKNuKuLX1ru3k_HBDwGqSS_B7lQgi_SIDymbXsNOzVHergXjV6elOKP0T7YA7cDxILtF8YIcX-3op3V7Dwy6OC9oRKsajUdITwz3IoXGO8a3TwDMq0XFVFFxQP6xFiRrWacHXUoZA2N8JVSMl606rJb4JY4WYHLITggTKiH4q-cDbw2M_LKS1uOIK-4KfLW8qaXIuevsY1MjrykjSAUwQXi8ggJ2pNa_cKqICNQ4FLHZM0I1rICpYdbQ_fa94ompmTzWZU8a_D2TwEFKEZf_QUWz00Cjog5qlvMoAqtuo27NtByNfw0YhauW0Jvp5hgFvKTY8iQkG7PPsG8djqgY7B7ODHBITAPa-lt-3Yy8TexbltBsF1o9EzhN2NPz1Ly2EzOO3q-H-z3VrxM_mC0 "Click for SVG version")
 
 Features of this FSM:
 

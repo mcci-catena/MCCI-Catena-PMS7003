@@ -1,4 +1,6 @@
 @startuml
+hide empty description
+
 /'
 
 Module:	PMS7003_state.plantuml
@@ -19,8 +21,6 @@ Notes:
 	resulting URLs.
 
 '/
-
-hide empty descriptions
 
 [*] --> stOff
 
