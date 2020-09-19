@@ -347,9 +347,36 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
     if (this->m_measurement_valid)
         {
         McciCatenaPMS7003::cPMS7003::Measurements<float> results;
-        if (this->postProcess(results))
+        if (this->postProcess(results) && this->m_fSgpc3)
             {
-            flag |= Flags::PM | Flags::Dust;
+            uint16_t tvoc = -1;
+            // we'll start by triggering a measurement of the VOC sensor;
+            // it's important to do this first to make sure sleep timing is
+            // correct. If the command succeeds, the local variables will
+            // be set to the values we just read; if it fails, they'll be -1
+            if (this->m_Sgpc3Sensor.measureIAQ() != 0) {
+                gCatena.SafePrintf("Error while measuring IAQ: %d\n",
+                        this->m_Sgpc3Sensor.getError());
+            } else {
+                tvoc = this->m_Sgpc3Sensor.getTVOC();
+            }
+            // get the baseline value that shuold be stored in non volatile memory
+            if (this->m_Sgpc3Sensor.getBaseline() != 0) {
+                gCatena.SafePrintf("Error while getting Baseline: %d\n",
+                        this->m_Sgpc3Sensor.getError());
+            } else {
+                gCatena.SafePrintf("Baseline value: %d\n",
+                        this->m_Sgpc3Sensor.getBaselineValue());
+            }
+
+            // finally, let's print those to the serial console
+            gCatena.SafePrintf("TVOC: %d ppb\n", tvoc);
+            // and then, we'll use remainingWaitTimeMS() to ensure the correct
+            // Measurement rate
+            delay(this->m_Sgpc3Sensor.remainingWaitTimeMS());
+
+            b.putLux(tvoc);
+            flag |= Flags::TvocPM | Flags::Dust;
             
             b.put2uf(this->particle2uf(results.atm.m1p0));
             b.put2uf(this->particle2uf(results.atm.m2p5));
