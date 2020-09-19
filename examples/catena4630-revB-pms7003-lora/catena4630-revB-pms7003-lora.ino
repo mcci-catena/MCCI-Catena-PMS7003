@@ -31,6 +31,7 @@ Author:
 #include <arduino_lmic.h>
 #include <Catena-PMS7003.h>
 #include <Catena-PMS7003Hal-4630.h>
+#include <sgpc3.h>
 #include <mcciadk_baselib.h>
 #include <stdlib.h>
 
@@ -66,6 +67,12 @@ cSHT3x gTempRh { Wire };
 // true if SHT3x is running.
 bool gfTempRh;
 
+//  The Air Quality sensor
+SGPC3 gSgpc3Sensor;
+
+// true if SGPC3 is running.
+bool gfSgpc3;
+
 // the HAL for the PMS7003 library.
 cPMS7003Hal_4630 gPmsHal 
     { 
@@ -78,7 +85,7 @@ cPMS7003Hal_4630 gPmsHal
 cPMS7003 gPms7003 { Serial2, gPmsHal };
 
 // the measurement loop instance
-cMeasurementLoop gMeasurementLoop { gPms7003, gTempRh };
+cMeasurementLoop gMeasurementLoop { gPms7003, gTempRh, gSgpc3Sensor };
 
 // forward reference to the command functions
 cCommandStream::CommandFn cmdDebugMask;
@@ -207,6 +214,30 @@ void setup_sensors()
     {
     Wire.begin();
     gMeasurementLoop.setTempRh(gTempRh.begin());
+
+    pinMode(D5, OUTPUT);
+    digitalWrite(D5, HIGH);
+
+    // initialize SGPC3 Air Quality sensor
+    // Set Ultra Low power mode, sampling every 30s
+    gSgpc3Sensor.ultraLowPower();
+    if (!gSgpc3Sensor.initSGPC3(LT_FOREVER))
+        {
+        gMeasurementLoop.setSgpc3(true);
+
+        // Read the spec of the sensor, type and version
+        uint8_t type = gSgpc3Sensor.getProductType();
+        uint8_t p_version = gSgpc3Sensor.getVersion();
+        gCatena.SafePrintf("Type: %d\n", type);
+        gCatena.SafePrintf("Version: %d\n", p_version);
+        }
+    else
+        {
+        gMeasurementLoop.setSgpc3(false);
+        gCatena.SafePrintf("Error while initializing sensors: %d",
+                gSgpc3Sensor.getError()
+                );
+        }
     }
 
 void setup_pms7003()

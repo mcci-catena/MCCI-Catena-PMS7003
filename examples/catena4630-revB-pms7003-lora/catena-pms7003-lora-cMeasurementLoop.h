@@ -33,6 +33,7 @@ Author:
 #include <Catena-PMS7003.h>
 #include <Catena-PMS7003Hal-4630.h>
 #include <mcciadk_baselib.h>
+#include <sgpc3.h>
 #include <stdlib.h>
 
 #include <cstdint>
@@ -57,10 +58,12 @@ public:
     // constructor
     cMeasurementLoop(
             McciCatenaPMS7003::cPMS7003& pms7003, 
-            McciCatenaSht3x::cSHT3x& TempRh
+            McciCatenaSht3x::cSHT3x& TempRh,
+            SGPC3& Sgpc3Sensor
             )
         : m_Pms7003(pms7003)
         , m_TempRh(TempRh)
+        , m_Sgpc3Sensor(Sgpc3Sensor)
         , m_txCycleSec_Permanent(6 * 60)    // default uplink interval
         , m_txCycleSec(30)                  // initial uplink interval
         , m_txCycleCount(10)                // initial count of fast uplinks
@@ -103,7 +106,7 @@ public:
             }
         }
 
-    static constexpr uint8_t kUplinkPort = 1;
+    static constexpr uint8_t kUplinkPort = 5;
     static constexpr uint8_t kMessageFormat = 0x21;
 
     enum class Flags : uint8_t
@@ -113,7 +116,7 @@ public:
             Vbus = 1 << 2,  // Vbus input
             Boot = 1 << 3,
             TH = 1 << 4,    // temperature, humidity
-            PM = 1 << 5,    // Particulate matter
+            TvocPM = 1 << 5,    // TVOC, Particulate matter
             Dust = 1 << 6,  // Dust
             };
 
@@ -147,6 +150,10 @@ public:
     void setTempRh(bool fEnable)
         {
         this->m_fTempRh = fEnable; 
+        }
+    void setSgpc3(bool fEnable)
+        {
+        this->m_fSgpc3 = fEnable;
         }
     void setVbus(float Vbus)
         {
@@ -241,6 +248,7 @@ private:
     McciCatenaPMS7003::cPMS7003&
                         m_Pms7003;
     McciCatenaSht3x::cSHT3x&    m_TempRh;
+    SGPC3& m_Sgpc3Sensor;
 
     // true if object is registered for polling.
     bool                m_registered : 1;
@@ -270,6 +278,8 @@ private:
     bool                m_fUsbPower : 1;
     // set true if Temperature/RH sensor (SHT3x) is present
     bool                m_fTempRh : 1;
+    // set true if SGPC3 sensor (Air Quality) is present
+    bool                m_fSgpc3 : 1;
     // set true while a transmit is pending.
     bool                m_txpending : 1;
     // set true when a transmit completes.
