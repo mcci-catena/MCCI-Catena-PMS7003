@@ -30,9 +30,13 @@ This sketch has the following features.
 
 - Every measurement cycle, the sketch powers up the PMS7003. It then takes a sequence of 10 measurements. Data is gathered from the atmospheric PM serias and the dust series. For each series, outliers are discarded using an IQR1.5 filter, and then the remaining data is averaged.
 
-- Current environmental conditions are read from the BME280.
+- Current environmental conditions are read from the SHT3x.
 
-- Data is prepared using port 1 format 0x20, and transmitted to the network.
+- Current air quality value (TVOC) read from the SGPC3 sensor.
+
+- Data is prepared using port 5 format 0x21, and transmitted to the network.
+
+- The sketch uses [gb88/SGPC3](https://github.com/gb88/SGPC3) library to measure TVOC value and transmit over network.
 
 - The sketch uses the [Catena Arduino Platform](https://github.com/mcci-catena/Catena-Arduino-Platform.git), and therefore the basic provisioning commands from the platform are always availble while the sketch is running. This also allows user commands to be added if desired.
 
