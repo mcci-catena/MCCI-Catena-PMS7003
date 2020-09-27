@@ -36,15 +36,23 @@ Author:
 
 #include <cstdint>
 
+using namespace McciCatena;
+using namespace McciCatenaPMS7003;
+using namespace McciCatenaSht3x;
+
+/****************************************************************************\
+|
+|   Constants.
+|
+\****************************************************************************/
+
+constexpr std::uint32_t kAppVersion = McciCatenaPMS7003::makeVersion(1,0,0,0);
+
 /****************************************************************************\
 |
 |   Variables.
 |
 \****************************************************************************/
-
-using namespace McciCatena;
-using namespace McciCatenaPMS7003;
-using namespace McciCatenaSht3x;
 
 Catena gCatena;
 Catena::LoRaWAN gLoRaWAN;
@@ -161,14 +169,21 @@ void setup_printSignOn()
 
     gCatena.SafePrintf("\n%s%s\n", dashes, dashes);
 
-    gCatena.SafePrintf("This is %s.\n", filebasename(__FILE__));
-        {
+    gCatena.SafePrintf("This is %s v%d.%d.%d.%d.\n",
+        filebasename(__FILE__),
+        McciCatenaPMS7003::getMajor(kAppVersion),
+        McciCatenaPMS7003::getMinor(kAppVersion),
+        McciCatenaPMS7003::getPatch(kAppVersion),
+        McciCatenaPMS7003::getLocal(kAppVersion)
+        );
+
+    do  {
         char sRegion[16];
         gCatena.SafePrintf("Target network: %s / %s\n",
                         gLoRaWAN.GetNetworkName(),
                         gLoRaWAN.GetRegionString(sRegion, sizeof(sRegion))
                         );
-        }
+        } while (0);
 
     gCatena.SafePrintf("System clock rate is %u.%03u MHz\n",
         ((unsigned)gCatena.GetSystemClockRate() / (1000*1000)),
