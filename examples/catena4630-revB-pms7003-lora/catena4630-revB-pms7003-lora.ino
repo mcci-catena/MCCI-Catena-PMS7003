@@ -128,6 +128,7 @@ void setup_platform()
     gCatena.begin();
 
     gLed.begin();
+    gCatena.registerObject(&gLed);
     gLed.Set(McciCatena::LedPattern::FastFlash);
 
     // if running unattended, don't wait for USB connect.
