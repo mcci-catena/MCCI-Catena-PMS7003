@@ -237,7 +237,7 @@ function Decoder(bytes, port) {
     // (array) of bytes to an object of fields.
     var decoded = {};
 
-    if (! ((port === 1) || (port === 5)))
+    if (! (port === 1 || port === 5))
         return null;
 
     var uFormat = bytes[0];
@@ -283,10 +283,10 @@ function Decoder(bytes, port) {
     }
 
     if (flags & 0x20) {
-        if (port === 5) {
+        if (uFormat === 0x21) {
             var tvoc = (bytes[Parse.i++] << 8) + (bytes[Parse.i++]);
             decoded.TVOC = tvoc;
-        }
+        } 
         decoded.pm = {};
         decoded.pm["1.0"] = DecodePM(Parse);
         decoded.pm["2.5"] = DecodePM(Parse);
