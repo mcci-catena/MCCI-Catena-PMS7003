@@ -283,8 +283,8 @@ function Decoder(bytes, port) {
     }
 
     if (flags & 0x20) {
-        if (uFormat === 0x21) {
-            var tvoc = (bytes[Parse.i++] << 8) + (bytes[Parse.i++]);
+        if (port === 5) {
+            var tvoc = DecodeU16(Parse);
             decoded.TVOC = tvoc;
         }
         decoded.pm = {};
