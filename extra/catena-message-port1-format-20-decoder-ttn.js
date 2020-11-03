@@ -283,9 +283,10 @@ function Decoder(bytes, port) {
     }
 
     if (flags & 0x20) {
-        var tvoc = (bytes[Parse.i++] << 8) + (bytes[Parse.i++]);
-        decoded.TVOC = tvoc;
-
+        if (port === 5) {
+            var tvoc = (bytes[Parse.i++] << 8) + (bytes[Parse.i++]);
+            decoded.TVOC = tvoc;
+        }
         decoded.pm = {};
         decoded.pm["1.0"] = DecodePM(Parse);
         decoded.pm["2.5"] = DecodePM(Parse);
