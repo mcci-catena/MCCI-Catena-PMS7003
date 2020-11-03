@@ -286,7 +286,7 @@ function Decoder(bytes, port) {
         if (uFormat === 0x21) {
             var tvoc = (bytes[Parse.i++] << 8) + (bytes[Parse.i++]);
             decoded.TVOC = tvoc;
-        } 
+        }
         decoded.pm = {};
         decoded.pm["1.0"] = DecodePM(Parse);
         decoded.pm["2.5"] = DecodePM(Parse);
