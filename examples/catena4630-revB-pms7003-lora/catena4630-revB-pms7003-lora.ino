@@ -250,7 +250,7 @@ void setup_sensors()
     else
         {
         gMeasurementLoop.setSgpc3(false);
-        gCatena.SafePrintf("Error while initializing sensors: %d",
+        gCatena.SafePrintf("Error while initializing sensors: %s\n",
                 gSgpc3Sensor.getError()
                 );
         }

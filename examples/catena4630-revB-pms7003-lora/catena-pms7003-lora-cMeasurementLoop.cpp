@@ -355,14 +355,14 @@ void cMeasurementLoop::fillTxBuffer(cMeasurementLoop::TxBuffer_t& b)
             // correct. If the command succeeds, the local variables will
             // be set to the values we just read; if it fails, they'll be -1
             if (this->m_Sgpc3Sensor.measureIAQ() != 0) {
-                gCatena.SafePrintf("Error while measuring IAQ: %d\n",
+                gCatena.SafePrintf("Error while measuring IAQ: %s\n",
                         this->m_Sgpc3Sensor.getError());
             } else {
                 tvoc = this->m_Sgpc3Sensor.getTVOC();
             }
             // get the baseline value that shuold be stored in non volatile memory
             if (this->m_Sgpc3Sensor.getBaseline() != 0) {
-                gCatena.SafePrintf("Error while getting Baseline: %d\n",
+                gCatena.SafePrintf("Error while getting Baseline: %s\n",
                         this->m_Sgpc3Sensor.getError());
             } else {
                 gCatena.SafePrintf("Baseline value: %d\n",
