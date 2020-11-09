@@ -9,7 +9,7 @@
 
 ## Overall Message Format
 
-Port 1 format 0x20 and 0x21 uplink messages are sent by Catena4630-pms7003-lora and related sketches. As demos, we use the discriminator byte in the same way as many of the sketches in the Catena-Sketches collection.
+Port 1 and port 5 format 0x20 and 0x21 uplink messages are sent by Catena4630-pms7003-lora and related sketches. As demos, we use the discriminator byte in the same way as many of the sketches in the Catena-Sketches collection.
 
 Format 0x20 and 0x21 are practically identical, except that 0x20 transmits barometric pressure, but 0x21 does not.
 
@@ -33,8 +33,8 @@ Bitmap bit | Length of corresponding field (bytes) | Data format |Description
 1 | 2 | [int16](#int16) | [System voltage](#sys-voltage-field-1)
 2 | 2 | [int16](#int16) | [Bus voltage](#bus-voltage-field-2)
 3 | 1 | [uint8](#uint8) | [Boot counter](#boot-counter-field-3)
-4 | 6 | [int16](#int16), [uint16](#uint16), [uint16](#uint16) | [Temperature, Pressure (if 0x20), Humidity](environmental-readings-field-4)
-5 | 14 | 7 times [uflt16](#uflt16) | [Particle Concentrations](#particle-concentrations-field-5)
+4 | 6 | [int16](#int16), [uint16](#uint16), [uint16](#uint16) | [Temperature, Pressure (if format 0x20), Humidity](environmental-readings-field-4)
+5 | 14 | _[uint16](#uint16)_, 9 times [uflt16](#uflt16) | [_TVOC (if port 5)_, Particle Concentrations](#particle-concentrations-field-5)
 6 | n/a | _reserved_ | Reserved for future use.
 7 | n/a | _reserved_ | Reserved for future use.
 
@@ -68,10 +68,11 @@ Field 4, if present, has three environmental readings as four bytes of data.
 
 ### Particle Concentrations (field 5)
 
-Field 5, if present, has nine particle concentrations as 18 bytes of data, each as a [`uflt16`](#uflt16).  `uflt16` values respresent values in [0, 1).
+Field 5, if present, has optional TVOC (if port 5), followed by nine particle concentrations as 18 bytes of data, each as a [`uflt16`](#uflt16).  `uflt16` values respresent values in [0, 1).
 
 The fields in order are:
 
+- TVOC (in PPB).
 - PM1.0, PM2.5 and PM10 concentrations. Multiply by 65536 to get concentrations in &mu;g per cubic meter.
 - Dust concentrations for particles of size 0.3, 0.5, 1.0, 2.5, 5.0 and 10 microns. Multiply by 65536 to get particle counts per 0.1L of air.
 
