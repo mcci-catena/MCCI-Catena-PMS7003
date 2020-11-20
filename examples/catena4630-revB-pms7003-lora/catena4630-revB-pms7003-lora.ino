@@ -47,7 +47,7 @@ using namespace McciCatenaSht3x;
 |
 \****************************************************************************/
 
-constexpr std::uint32_t kAppVersion = McciCatenaPMS7003::makeVersion(2,0,1,0);
+constexpr std::uint32_t kAppVersion = McciCatenaPMS7003::makeVersion(2,0,2,0);
 
 /****************************************************************************\
 |
