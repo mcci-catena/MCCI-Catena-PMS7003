@@ -57,7 +57,7 @@ class cMeasurementLoop : public McciCatena::cPollableObject
 public:
     // constructor
     cMeasurementLoop(
-            McciCatenaPMS7003::cPMS7003& pms7003, 
+            McciCatenaPMS7003::cPMS7003& pms7003,
             McciCatenaSht3x::cSHT3x& TempRh,
             SGPC3& Sgpc3Sensor
             )
@@ -150,7 +150,7 @@ public:
     virtual void poll() override;
     void setTempRh(bool fEnable)
         {
-        this->m_fTempRh = fEnable; 
+        this->m_fTempRh = fEnable;
         }
     void setSgpc3(bool fEnable)
         {

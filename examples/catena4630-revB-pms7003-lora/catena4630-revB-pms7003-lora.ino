@@ -90,8 +90,8 @@ SGPC3 gSgpc3Sensor { delayByPolling, nullptr };
 bool gfSgpc3;
 
 // the HAL for the PMS7003 library.
-cPMS7003Hal_4630 gPmsHal 
-    { 
+cPMS7003Hal_4630 gPmsHal
+    {
     gCatena,
     (cPMS7003::DebugFlags::kError |
      cPMS7003::DebugFlags::kTrace)
