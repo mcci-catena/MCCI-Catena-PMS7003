@@ -106,7 +106,7 @@ public:
             }
         }
 
-    static constexpr uint8_t kUplinkPort = 5;
+    static constexpr uint8_t kUplinkPort = 1;
     static constexpr uint8_t kMessageFormat = 0x21;
 
     enum class Flags : uint8_t
@@ -116,8 +116,9 @@ public:
             Vbus = 1 << 2,  // Vbus input
             Boot = 1 << 3,
             TH = 1 << 4,    // temperature, humidity
-            TvocPM = 1 << 5,    // TVOC, Particulate matter
+            PM = 1 << 5,    // Particulate matter
             Dust = 1 << 6,  // Dust
+            TVOC = 1 << 7,  // TVOC
             };
 
     static constexpr size_t kTxBufferSize = 36;

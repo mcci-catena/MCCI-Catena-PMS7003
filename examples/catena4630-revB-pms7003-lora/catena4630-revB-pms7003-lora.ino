@@ -47,7 +47,15 @@ using namespace McciCatenaSht3x;
 |
 \****************************************************************************/
 
-constexpr std::uint32_t kAppVersion = McciCatenaPMS7003::makeVersion(2,0,0,0);
+constexpr std::uint32_t kAppVersion = McciCatenaPMS7003::makeVersion(2,0,1,0);
+
+/****************************************************************************\
+|
+|   Forward references
+|
+\****************************************************************************/
+
+static SGPC3::delay_millis_t delayByPolling;
 
 /****************************************************************************\
 |
@@ -76,7 +84,7 @@ cSHT3x gTempRh { Wire };
 bool gfTempRh;
 
 //  The Air Quality sensor
-SGPC3 gSgpc3Sensor;
+SGPC3 gSgpc3Sensor { delayByPolling, nullptr };
 
 // true if SGPC3 is running.
 bool gfSgpc3;
@@ -233,24 +241,40 @@ void setup_sensors()
 
     pinMode(D5, OUTPUT);
     digitalWrite(D5, HIGH);
+    gSgpc3Sensor.delayMS(100);
 
     // initialize SGPC3 Air Quality sensor
-    // Set Ultra Low power mode, sampling every 30s
-    gSgpc3Sensor.ultraLowPower();
-    if (!gSgpc3Sensor.initSGPC3(LT_FOREVER))
-        {
-        gMeasurementLoop.setSgpc3(true);
+    gCatena.SafePrintf("Initializing TVOC sensor -- this takes a few minutes.\n");
 
-        // Read the spec of the sensor, type and version
-        uint8_t type = gSgpc3Sensor.getProductType();
-        uint8_t p_version = gSgpc3Sensor.getVersion();
-        gCatena.SafePrintf("Type: %d\n", type);
-        gCatena.SafePrintf("Version: %d\n", p_version);
+    // Set Ultra Low power mode, sampling every 30s
+    auto rc1 = gSgpc3Sensor.ultraLowPower();
+    if (rc1 == 0)
+        {
+        auto rc2 = gSgpc3Sensor.initSGPC3(LT_FOREVER);
+        if (rc2 == 0)
+            {
+            gMeasurementLoop.setSgpc3(true);
+
+            // Read the spec of the sensor, type and version
+            uint8_t type = gSgpc3Sensor.getProductType();
+            uint8_t p_version = gSgpc3Sensor.getVersion();
+            gCatena.SafePrintf("SGPC3 Type: %d\n", type);
+            gCatena.SafePrintf("Version: %d\n", p_version);
+            }
+        else
+            {
+            gMeasurementLoop.setSgpc3(false);
+            gCatena.SafePrintf("Error %d while initializing TVOC sensor: %s\n",
+                    rc2,
+                    gSgpc3Sensor.getError()
+                    );
+            }
         }
     else
         {
         gMeasurementLoop.setSgpc3(false);
-        gCatena.SafePrintf("Error while initializing sensors: %s\n",
+        gCatena.SafePrintf("Error %d while setting TVOC ultralow power: %s\n",
+                rc1,
                 gSgpc3Sensor.getError()
                 );
         }
@@ -297,4 +321,24 @@ void setup_measurement()
 void loop()
     {
     gCatena.poll();
+    }
+
+/****************************************************************************\
+|
+|   Help with delays by polling until delay is elapsed
+|
+\****************************************************************************/
+
+void delayByPolling(void *pClientData, std::uint32_t ms)
+    {
+    auto last = micros();
+    std::int64_t us = std::uint64_t(ms) * 1000;
+
+    while (us > 0)
+        {
+        auto const now = micros();
+        us -= (now - last);
+        gCatena.poll();
+        last = now;
+        }
     }
