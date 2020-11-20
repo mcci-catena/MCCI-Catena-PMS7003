@@ -3,7 +3,29 @@
 <!-- markdownlint-disable MD033 -->
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
-<!-- TOC depthFrom:2 updateOnSave:true -->autoauto- [Overall Message Format](#overall-message-format)auto- [Bitmap fields and associated fields](#bitmap-fields-and-associated-fields)auto    - [Battery Voltage (field 0)](#battery-voltage-field-0)auto    - [System Voltage (field 1)](#system-voltage-field-1)auto    - [Bus Voltage (field 2)](#bus-voltage-field-2)auto    - [Boot counter (field 3)](#boot-counter-field-3)auto    - [Environmental Readings (field 4)](#environmental-readings-field-4)auto    - [Particle Concentrations (field 5)](#particle-concentrations-field-5)auto- [Data Formats](#data-formats)auto    - [uint16](#uint16)auto    - [int16](#int16)auto    - [uint8](#uint8)auto    - [uflt16](#uflt16)auto- [Test Vectors](#test-vectors)auto    - [Test vector generator](#test-vector-generator)auto- [The Things Network Console decoding script](#the-things-network-console-decoding-script)auto- [Node-RED Decoding Script](#node-red-decoding-script)autoauto<!-- /TOC -->
+<!-- TOC depthFrom:2 updateOnSave:true -->
+
+- [Overall Message Format](#overall-message-format)
+- [Bitmap fields and associated fields](#bitmap-fields-and-associated-fields)
+	- [Battery Voltage (field 0)](#battery-voltage-field-0)
+	- [System Voltage (field 1)](#system-voltage-field-1)
+	- [Bus Voltage (field 2)](#bus-voltage-field-2)
+	- [Boot counter (field 3)](#boot-counter-field-3)
+	- [Environmental Readings (field 4)](#environmental-readings-field-4)
+	- [Air quality (field 5)](#air-quality-field-5)
+	- [Dust concentrations (field 6)](#dust-concentrations-field-6)
+	- [TVOC (field 7)](#tvoc-field-7)
+- [Data Formats](#data-formats)
+	- [uint16](#uint16)
+	- [int16](#int16)
+	- [uint8](#uint8)
+	- [uflt16](#uflt16)
+- [Test Vectors](#test-vectors)
+	- [Test vector generator](#test-vector-generator)
+- [The Things Network Console decoding script](#the-things-network-console-decoding-script)
+- [Node-RED Decoding Script](#node-red-decoding-script)
+
+<!-- /TOC -->
 <!-- markdownlint-restore -->
 <!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
@@ -34,9 +56,9 @@ Bitmap bit | Length of corresponding field (bytes) | Data format |Description
 2 | 2 | [int16](#int16) | [Bus voltage](#bus-voltage-field-2)
 3 | 1 | [uint8](#uint8) | [Boot counter](#boot-counter-field-3)
 4 | 6 | [int16](#int16), [uint16](#uint16), [uint16](#uint16) | [Temperature, Pressure (if format 0x20), Humidity](environmental-readings-field-4)
-5 | 14 | _[uint16](#uint16)_, 9 times [uflt16](#uflt16) | [_TVOC (if port 5)_, Particle Concentrations](#particle-concentrations-field-5)
-6 | n/a | _reserved_ | Reserved for future use.
-7 | n/a | _reserved_ | Reserved for future use.
+5 | 6 or 8 | _[uint16](#uint16)_, 3 times [uflt16](#uflt16) | [_TVOC (if port 5)_, Particle Concentrations](#particle-concentrations-field-5)
+6 | 14 | 6 times [uflt16](#uflt16) | [Dust Concentrations](#dust-concentrations-field-6)
+7 | 2 | [uint16](#uint16) | [TVOC](#tvoc-field-7)
 
 ### Battery Voltage (field 0)
 
@@ -66,15 +88,22 @@ Field 4, if present, has three environmental readings as four bytes of data.
 
 - The next two bytes are a [`uint16`](#uint16) representing the relative humidity (divide by 65535 to get percent). This field can represent humidity from 0% to 100%, in steps of roughly 0.001529%.
 
-### Particle Concentrations (field 5)
+### Air quality (field 5)
 
 Field 5, if present, has optional TVOC (if port 5), followed by nine particle concentrations as 18 bytes of data, each as a [`uflt16`](#uflt16).  `uflt16` values respresent values in [0, 1).
 
 The fields in order are:
 
-- TVOC (in PPB).
+- TVOC (in PPB) -- only for port 5.
 - PM1.0, PM2.5 and PM10 concentrations. Multiply by 65536 to get concentrations in &mu;g per cubic meter.
-- Dust concentrations for particles of size 0.3, 0.5, 1.0, 2.5, 5.0 and 10 microns. Multiply by 65536 to get particle counts per 0.1L of air.
+
+### Dust concentrations (field 6)
+
+- Dust concentrations for particles of size 0.3, 0.5, 1.0, 2.5, 5.0 and 10 microns. Transmitted as [`uflt16`](#uflt16`). Multiply by 65536 to get particle counts per 0.1L of air.
+
+### TVOC (field 7)
+
+This field is only defined for port 1; it's not used for port 5. It carries TVOC (total volatile organic compounds) in parts per billion, transmitted as [`uint16`](#uint16).
 
 ## Data Formats
 
@@ -203,7 +232,15 @@ The following input data can be used to test decoders.
 }
 ```
 
-`20 7f 20 00 34 cd 4e 66 2a 1e 00 63 54 99 99 6c 80 7c 80 89 60 9f a0 af a0 bb b8 bf a0 c9 c4 cb b8`
+`20 80 56 78`
+
+```json
+{
+  "TVOC": 22136
+}
+```
+
+`20 ff 20 00 34 cd 4e 66 2a 1e 00 63 54 99 99 6c 80 7c 80 89 60 9f a0 af a0 bb b8 bf a0 c9 c4 cb b8 56 78`
 
 ```json
 {
@@ -226,6 +263,7 @@ The following input data can be used to test decoders.
   "tDewC": 21.390006900020513,
   "tHeatIndexF": 91.09765809999998,
   "tempC": 30,
+  "TVOC": 22136,
   "vBat": 2,
   "vBus": 4.89990234375,
   "vSys": 3.300048828125
@@ -272,7 +310,7 @@ Vsys -0.5 .
 20 02 f8 00
 Vbus 10 .
 20 04 7f ff
-Boot 2a .
+Boot 42 .
 20 08 2a
 Env 20 978.5 60 .
 20 10 14 00 5f 8f 99 99
@@ -282,8 +320,10 @@ Pm 100 200 300 .
 20 20 6c 80 7c 80 89 60
 Dust 1000 2000 3000 4000 5000 6000 .
 20 40 9f a0 af a0 bb b8 bf a0 c9 c4 cb b8
-Vbat 2 Vsys 3.3 Vbus 4.9 Boot 2a Env 30 1017.1 60 Pm 100 200 300 Dust 1000 2000 3000 4000 5000 6000 .
-20 7f 20 00 34 cd 4e 66 2a 1e 00 63 54 99 99 6c 80 7c 80 89 60 9f a0 af a0 bb b8 bf a0 c9 c4 cb b8
+TVOC 22136 .
+20 80 56 78
+Vbat 2 Vsys 3.3 Vbus 4.9 Boot 42 Env 30 1017.1 60 Pm 100 200 300 Dust 1000 2000 3000 4000 5000 6000 TVOC 22136 .
+20 ff 20 00 34 cd 4e 66 2a 1e 00 63 54 99 99 6c 80 7c 80 89 60 9f a0 af a0 bb b8 bf a0 c9 c4 cb b8 56 78
 ```
 
 ## The Things Network Console decoding script

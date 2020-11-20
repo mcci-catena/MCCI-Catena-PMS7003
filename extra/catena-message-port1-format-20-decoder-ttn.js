@@ -312,5 +312,10 @@ function Decoder(bytes, port) {
         decoded.dust["10"] = DecodeDust(Parse);
     }
 
+    if (flags & 0x80 && port === 1) {
+        var tvoc = DecodeU16(Parse);
+        decoded.TVOC = tvoc;
+    }
+
     return decoded;
 }

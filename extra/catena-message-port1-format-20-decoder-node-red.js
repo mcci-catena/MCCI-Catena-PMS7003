@@ -283,8 +283,10 @@ function Decoder(bytes, port) {
     }
 
     if (flags & 0x20) {
-        var tvoc = (bytes[Parse.i++] << 8) + (bytes[Parse.i++]);
-        decoded.TVOC = tvoc;
+        if (port === 5) {
+            var tvoc = DecodeU16(Parse);
+            decoded.TVOC = tvoc;
+        }
 
         decoded.pm = {};
         decoded.pm["1.0"] = DecodePM(Parse);
@@ -309,6 +311,11 @@ function Decoder(bytes, port) {
         decoded.dust["2.5"] = DecodeDust(Parse);
         decoded.dust["5"] = DecodeDust(Parse);
         decoded.dust["10"] = DecodeDust(Parse);
+    }
+
+    if (flags & 0x80 && port === 1) {
+        var tvoc = DecodeU16(Parse);
+        decoded.TVOC = tvoc;
     }
 
     return decoded;
@@ -353,7 +360,7 @@ if (result === null) {
     // not one of ours: report an error, return without a value,
     // so that Node-RED doesn't propagate the message any further.
     var eMsg = "not port 1/fmt 0x20! port=" + msg.port.toString();
-    if (port === 1) {
+    if (msg.port === 1 || msg.port === 5) {
         if (Buffer.byteLength(bytes) > 0) {
             eMsg = eMsg + " fmt=" + bytes[0].toString();
         } else {

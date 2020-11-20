@@ -1,3 +1,28 @@
+/*
+
+Module:	message-port1-format-20-test.cpp
+
+Function:
+	Test vector generator for port 1, format 0x20, 21
+
+Copyright and License:
+	This file copyright (C) 2019 by
+
+		MCCI Corporation
+		3520 Krums Corners Road
+		Ithaca, NY  14850
+
+	See accompanying LICENSE file for copyright and license information.
+
+Author:
+	Terry Moore, MCCI Corporation	July 2019
+
+*/
+
+// To build:
+//  Open a Visual Studio 2019 C++ command line window. Then:
+//
+//  C> cl /EHsc catena-message-port1-format-20-test.cpp
 #include <cmath>
 #include <cstdint>
 #include <iostream>
@@ -42,6 +67,7 @@ struct Measurements
     val<env> Env;
     val<pm> Pm;
     val<dust> Dust;
+    val<std::uint16_t> TVOC;
     };
 
 uint16_t
@@ -144,6 +170,11 @@ std::uint16_t encodeDust(float v)
     return encode16u(LMIC_f2uflt16(v / 65536.0f));
     }
 
+std::uint16_t encodeTVOC(std::uint16_t v)
+    {
+    return v;
+    }
+
 class Buffer : public std::vector<std::uint8_t>
     {
 public:
@@ -220,6 +251,12 @@ void encodeMeasurement(Buffer &buf, Measurements &m)
         buf.push_back_be(encodeDust(m.Dust.v.m10));
         }
 
+    if (m.TVOC.fValid)
+        {
+        flags |= 1 << 7;
+        buf.push_back_be(encodeTVOC(m.TVOC.v));
+        }
+
     // update the flags
     buf.data()[1] = flags;
     }
@@ -244,6 +281,8 @@ void logMeasurement(Measurements &m)
     private:
         bool m_first;
     } pad;
+
+    std::cout << std::dec;
 
     // put the fields
     if (m.Vbat.fValid)
@@ -288,6 +327,12 @@ void logMeasurement(Measurements &m)
                                           << m.Dust.v.m2_5 << " "
                                           << m.Dust.v.m5   << " "
                                           << m.Dust.v.m10;
+        }
+
+    if (m.TVOC.fValid)
+        {
+        std::cout << pad.get() << "TVOC " << m.TVOC.v
+                                           ;
         }
 
     // make the syntax cut/pastable.
@@ -371,6 +416,11 @@ int main(int argc, char **argv)
                     >> m.Dust.v.m5
                     >> m.Dust.v.m10;
             m.Dust.fValid = true;
+            }
+        else if (key == "TVOC")
+            {
+            std::cin >> m.TVOC.v;
+            m.TVOC.fValid = true;
             }
         else if (key == ".")
             {
