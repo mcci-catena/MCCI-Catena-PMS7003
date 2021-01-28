@@ -29,6 +29,13 @@ Author:
 #include <string>
 #include <vector>
 
+enum class OutputFormat
+    {
+    Bytes, Yaml
+    };
+
+//--- globals
+OutputFormat gOutputFormat = OutputFormat::Bytes;
 std::string key;
 std::string value;
 
@@ -347,16 +354,43 @@ void putTestVector(Measurements &m)
     bool fFirst;
 
     fFirst = true;
-    for (auto v : buf)
+    if (gOutputFormat == OutputFormat::Bytes)
         {
-        if (! fFirst)
-            std::cout << " ";
-        fFirst = false;
-        std::cout.width(2);
-        std::cout.fill('0');
-        std::cout << std::hex << unsigned(v);
+        for (auto v : buf)
+            {
+            if (! fFirst)
+                std::cout << ' ';
+            fFirst = false;
+            std::cout.width(2);
+            std::cout.fill('0');
+            std::cout << std::hex << unsigned(v);
+            }
+        std::cout << '\n';
+        std::cout << "length: " << std::dec << buf.end() - buf.begin() << '\n';
         }
-    std::cout << "\n";
+    else if (gOutputFormat == OutputFormat::Yaml)
+        {
+        auto const sLeft = "  ";
+        std::cout << "  examples:" << '\n'
+                  << "    - description: XXX\n"
+                  << "      input:\n"
+                  << "        fPort: XXX\n"
+                  << "        bytes: [";
+
+        for (auto v : buf)
+            {
+            if (! fFirst)
+                std::cout << ", ";
+            fFirst = false;
+            std::cout << std::dec << unsigned(v);
+            }
+        
+        std::cout << "]\n"
+                  << "      output:\n"
+                  << "        data:\n"
+                  << "          JSON-HERE\n"
+                  ;
+        }
     }
 
 int main(int argc, char **argv)
@@ -364,6 +398,21 @@ int main(int argc, char **argv)
     Measurements m {0};
     Measurements m0 {0};
     bool fAny;
+
+    if (argc > 1)
+        {
+        std::string opt;
+        opt = argv[1];
+        if (opt == "--yaml")
+            {
+            std::cout << "(output in yaml format)\n";
+            gOutputFormat = OutputFormat::Yaml;
+            }
+        else
+            {
+            std::cout << "invalid option ignored: " << opt << '\n';
+            }
+        }
 
     std::cout << "Input a line with name/values pairs\n";
 

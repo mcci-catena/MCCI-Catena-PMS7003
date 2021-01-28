@@ -279,7 +279,7 @@ function Decoder(bytes, port) {
         decoded.tDewC = dewpoint(decoded.tempC, decoded.rh);
         var tHeat = CalculateHeatIndex(decoded.tempC * 1.8 + 32, decoded.rh);
         if (tHeat !== null)
-            decoded.tHeatIndexF = tHeat;
+            decoded.tHeatIndexC = (tHeat - 32) * 5 / 9;
     }
 
     if (flags & 0x20) {
