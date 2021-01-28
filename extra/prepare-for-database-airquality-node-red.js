@@ -119,7 +119,7 @@ function insert_value(pOutput, sInKey, inValue)
         pOutput[sInKey] = inValue;
     }
 
-// Back to mainline code. Having defined `insert_value()`, 
+// Back to mainline code. Having defined `insert_value()`,
 // we now use it to add the fields we want as influxdb values
 // to the part of the result that establishes values.
 for (var i in value_keys)

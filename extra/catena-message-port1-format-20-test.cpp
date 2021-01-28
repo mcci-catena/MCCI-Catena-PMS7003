@@ -227,7 +227,7 @@ void encodeMeasurement(Buffer &buf, Measurements &m)
         flags |= 1 << 3;
         buf.push_back(m.Boot.v);
         }
-    
+
     if (m.Env.fValid)
         {
         flags |= 1 << 4;
@@ -311,7 +311,7 @@ void logMeasurement(Measurements &m)
         {
         std::cout << pad.get() << "Boot " << unsigned(m.Boot.v);
         }
-    
+
     if (m.Env.fValid)
         {
         std::cout << pad.get() << "Env " << m.Env.v.t << " "
@@ -384,7 +384,7 @@ void putTestVector(Measurements &m)
             fFirst = false;
             std::cout << std::dec << unsigned(v);
             }
-        
+
         std::cout << "]\n"
                   << "      output:\n"
                   << "        data:\n"
@@ -458,7 +458,7 @@ int main(int argc, char **argv)
             }
         else if (key == "Dust")
             {
-            std::cin >> m.Dust.v.m0_3 
+            std::cin >> m.Dust.v.m0_3
                     >> m.Dust.v.m0_5
                     >> m.Dust.v.m1_0
                     >> m.Dust.v.m2_5
@@ -489,7 +489,7 @@ int main(int argc, char **argv)
 
         fAny |= fUpdate;
         }
-    
+
     if (!std::cin.eof() && std::cin.fail())
         {
         std::string nextword;

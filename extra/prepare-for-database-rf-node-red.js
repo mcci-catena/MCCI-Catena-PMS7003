@@ -74,7 +74,7 @@ var result =
             platformType: msg.local.platformType,
             radioType: msg.local.radioType,
             applicationName: msg.local.applicationName,
-            // we make these tags so we can plot rssi by 
+            // we make these tags so we can plot rssi by
             // channel, etc.
             frequency: msg.metadata.frequency,
             channel: g.channel,
