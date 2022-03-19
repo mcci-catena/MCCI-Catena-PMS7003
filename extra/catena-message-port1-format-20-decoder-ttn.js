@@ -310,3 +310,11 @@ function Decoder(bytes, port) {
 
     return decoded;
 }
+
+// TTN V3 decoder
+function decodeUplink(tInput) {
+    var decoded = Decoder(tInput.bytes, tInput.fPort);
+    var result = {};
+    result.data = decoded;
+    return result;
+  }
