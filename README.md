@@ -1,10 +1,12 @@
 # MCCI PMS7003 Library
 
-This library provides a structured interface to a Plantower PMS7003 particulate matter sensor. An example demonstrates the functionality of the PMS7003 with the MCCI Catena 4630 Air-Quality Sensor.
+This library provides a structured interface to a Plantower PMS7003 particulate matter sensor. An example demonstrates the functionality of the PMS7003 with the MCCI Catena 4630 Air-Quality Sensor. This library is also used in the software for the MCCI [Model 4841 Air Quality Sensor](https://mcci.io/buy-model4841).
 
-|        |         |
-|--------|---------|
-| [![**Catena 4630 and PMS7003**](./assets/Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page") | [![**Catena 4630/PMS7003 kit**](./assets/Kit-Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page")
+[![GitHub release](https://img.shields.io/github/release/mcci-catena/MCCI-Catena-PMS7003.svg)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/MCCI-Catena-PMS7003/latest.svg)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/compare/v0.1.1...master) <!-- [![Arduino CI](https://img.shields.io/github/workflow/status/mcci-catena/MCCI-Catena-PMS7003/Arduino%20CI)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/actions) -->
+
+|        |         |        |
+|--------|---------|--------|
+| [![**Catena 4630 and PMS7003**](./assets/Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page") | [![**Catena 4630/PMS7003 kit**](./assets/Kit-Catena4630+PMS7003-1024x1024.jpg)](https://store.mcci.com/products/catena-4630 "Link to product page") | [![**Model 4841 Air Quality Sensor**](./assets/model4841-case-r2-sq-1024x1024.jpg)](https://mcci.io/buy-model4841)
 
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
@@ -15,13 +17,13 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 - [Library and Board Dependencies](#library-and-board-dependencies)
 - [Namespace](#namespace)
 - [Instance Objects](#instance-objects)
-        - [HAL instance object](#hal-instance-object)
-        - [cPMS7003 instance object](#cpms7003-instance-object)
+	- [HAL instance object](#hal-instance-object)
+	- [cPMS7003 instance object](#cpms7003-instance-object)
 - [Key classes](#key-classes)
-        - [`cPMS7003Hal`](#cpms7003hal)
-        - [`cPMS7003Hal_4630`](#cpms7003hal_4630)
-        - [`cPMS7003`](#cpms7003)
-        - [`cPMS7003::Measurements<>`](#cpms7003measurements)
+	- [`cPMS7003Hal`](#cpms7003hal)
+	- [`cPMS7003Hal_4630`](#cpms7003hal_4630)
+	- [`cPMS7003`](#cpms7003)
+	- [`cPMS7003::Measurements<>`](#cpms7003measurements)
 - [Integration with Catena 4630](#integration-with-catena-4630)
 - [Example Sketches](#example-sketches)
 - [Additional code for dashboards](#additional-code-for-dashboards)
@@ -29,9 +31,10 @@ This library provides a structured interface to a Plantower PMS7003 particulate 
 - [Board Support Dependencies](#board-support-dependencies)
 - [Other Libraries and Versions Required](#other-libraries-and-versions-required)
 - [Meta](#meta)
-        - [License](#license)
-        - [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
-        - [Trademarks](#trademarks)
+	- [Release History](#release-history)
+	- [License](#license)
+	- [Support Open Source Hardware and Software](#support-open-source-hardware-and-software)
+	- [Trademarks](#trademarks)
 
 <!-- /TOC -->
 <!-- markdownlint-restore -->
@@ -210,7 +213,7 @@ The relevant (and authoritative) rule from the [Federal Register](https://www.go
 
 ## Board Support Dependencies
 
-This library has been tested with MCCI's STM32L0 BSP v2.5.0 and the Catena 4630.
+This library has been tested with MCCI's STM32L0 BSP v2.5.0 through v3.0.5 and the Catena 4630.
 
 ## Other Libraries and Versions Required
 
@@ -220,16 +223,24 @@ This library has been tested with MCCI's STM32L0 BSP v2.5.0 and the Catena 4630.
 | [`arduino-lmic`](https://github.com/mcci-catena/arduino-lmic) | HEAD | 2.3.2 | Earlier versions will fail to compile due to missing `lmic_pinmap::rxtx_rx_polarity` and `lmic_pinmap::spi_freq` fields. Use of HEAD is strongly recommended as it has important improvements for LoRaWAN compliance. |
 | [`arduino-lorawan`](https://github.com/mcci-catena/arduino-lorawan) | HEAD | 0.5.3.50 | Needed in order to support the Murata module used in the Catena 4551, and for bug fixes in LoRaWAN::begin handling. |
 | [`catena-mcciadk`](https://github.com/mcci-catena/Catena-mcciadk) | 0.2.1 | 0.1.2 | Needed for miscellaneous definitions |
+[`mcci-catena/MCCI_FRAM_I2C`](https://github.com/mcci-catena/MCCI_FRAM_I2C.git) | HEAD | needed by `Catena-Arduino-Platform` |
 
 The example sketches use additional libraries.
 
 | Library | Recommended Version | Minimum Version | Comments |
 |---------|:-------:|:----:|----------|
-| [`mcci-catena/Adafruit_BME280_Library`](https://github.com/mcci-catena/Adafruit_BME280_Library.git) | HEAD | `3dafbe1c1e9` | Has bug fixes from MCCI for proper operation.
-| [`mcci-catena/Adafruit_Sensor`](https://github.com/mcci-catena/Adafruit_Sensor.git) | HEAD | 1.0.2 | MCCI version is just a snapshot for curation.
-<!-- | [`mcci-catena/Adafruit_FRAM_I2C`](https://github.com/mcci-catena/Adafruit_FRAM_I2C.git) | HEAD | | -->
+| [`mcci-catena/Adafruit_BME280_Library`](https://github.com/mcci-catena/Adafruit_BME280_Library.git) | HEAD | `3dafbe1c1e9` | Has bug fixes from MCCI for proper operation. Needed for the RevA 4630 board.
+| [`mcci-catena/Adafruit_Sensor`](https://github.com/mcci-catena/Adafruit_Sensor.git) | HEAD | 1.0.2 | MCCI version is just a snapshot for curation. Needed for the RevA 4630 board
+| [`MCCI-Catena-SHT3x](https://github.com/mcci-catena/MCCI-Catena-SHT3x) | 0.2.0 | 0.2.0
 
 ## Meta
+
+### Release History
+
+- v0.1.1 is a patch release. 
+
+  - No changes to the library apart from version.
+  - Updated the Javascript decoder for TTN v3 console ([#15](https://github.com/mcci-catena/MCCI-Catena-PMS7003/issues/15))
 
 ### License
 
