@@ -2,7 +2,7 @@
 
 This library provides a structured interface to a Plantower PMS7003 particulate matter sensor. An example demonstrates the functionality of the PMS7003 with the MCCI Catena 4630 Air-Quality Sensor. This library is also used in the software for the MCCI [Model 4841 Air Quality Sensor](https://mcci.io/buy-model4841).
 
-[![GitHub release](https://img.shields.io/github/release/mcci-catena/MCCI-Catena-PMS7003.svg)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/MCCI-Catena-PMS7003/latest.svg)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/compare/v0.1.1...master) <!-- [![Arduino CI](https://img.shields.io/github/workflow/status/mcci-catena/MCCI-Catena-PMS7003/Arduino%20CI)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/actions) -->
+[![GitHub release](https://img.shields.io/github/release/mcci-catena/MCCI-Catena-PMS7003.svg)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/mcci-catena/MCCI-Catena-PMS7003/latest.svg)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/compare/v0.1.2...master) <!-- [![Arduino CI](https://img.shields.io/github/workflow/status/mcci-catena/MCCI-Catena-PMS7003/Arduino%20CI)](https://github.com/mcci-catena/MCCI-Catena-PMS7003/actions) -->
 
 |        |         |        |
 |--------|---------|--------|
@@ -236,6 +236,13 @@ The example sketches use additional libraries.
 ## Meta
 
 ### Release History
+
+- v0.1.2 is a patch release
+
+  - No changes to the library apart from version.
+  - Rename `extra` to `extras` ([#19]((https://github.com/mcci-catena/MCCI-Catena-PMS7003/issues/19))
+  - Change `name=` value in `library.properties` so that IDE library installation uses the same name as a `git clone` of the repository.
+  - Add a `library.properties` dependency on [`Catena Arduino Platform`](https://github.com/mcci-catena/Catena-Arduino-Platform).
 
 - v0.1.1 is a patch release.
 
