@@ -237,7 +237,7 @@ The example sketches use additional libraries.
 
 ### Release History
 
-- v0.1.1 is a patch release. 
+- v0.1.1 is a patch release.
 
   - No changes to the library apart from version.
   - Updated the Javascript decoder for TTN v3 console ([#15](https://github.com/mcci-catena/MCCI-Catena-PMS7003/issues/15))
