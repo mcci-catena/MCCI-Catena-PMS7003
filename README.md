@@ -191,7 +191,7 @@ The `catena4630-pm7003-lora` example is a completely worked remote sensor sketch
 
 ## Additional code for dashboards
 
-Check the [extra](./extra) directory for JavaScript code for calculating AQI, decoding data from LoRaWAN messages, and Node-RED and Grafana assets for presenting the data using the [`docker-ttn-dashboard`](https://github.com/mcci-catena/docker-ttn-dashboard).
+Check the [extras](./extras) directory for JavaScript code for calculating AQI, decoding data from LoRaWAN messages, and Node-RED and Grafana assets for presenting the data using the [`docker-ttn-dashboard`](https://github.com/mcci-catena/docker-ttn-dashboard).
 
 ## Useful references
 
